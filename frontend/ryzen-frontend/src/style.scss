@@ -209,7 +209,7 @@ button.buttonDimension7 {
 }
 
 button.buttonDimension8 {
-    background-color: none;
+    background-color:transparent;
     width: 5.75rem;
     height: 2.875rem;
     border: none;
@@ -239,6 +239,60 @@ button.buttonDimension8 {
 }
 
 
+.buttonDimension10 {
+    background-color: rgb(255, 255, 255);
+    background: url(./assets/star.svg)no-repeat 1rem .75rem;
+    width: 5.75rem;
+    margin-left: -1rem;
+    height: 2.875rem;
+    padding-left: 3rem;
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: left;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: Inconsolata;
+}
+
+.buttonDimension11 {
+    background-color: rgb(255, 255, 255);
+    background: url(./assets/chat_bubble.svg)no-repeat 1rem .8rem;
+    width: 5.75rem;
+    margin-left: -1rem;
+    height: 2.875rem;
+    padding-left: 3rem;
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: left;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: Inconsolata;
+}
+
+.reply{
+    border-left: 2px solid black;
+    margin-left: 5rem;
+    padding-top: 1rem;
+    padding-left: 2rem;
+}
+
+
+
+
+button.buttonDimension12 {
+    background-color:transparent;
+    width: 5.75rem;
+    height: 2.875rem;
+    border: none;
+    color: rgb(0, 0, 0);
+    text-align: left;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: Inconsolata;
+}
 
 
 
@@ -402,6 +456,15 @@ div.storyContainer{
     background-color: rgb(255, 255, 255);
 }
 
+#storyLine{
+    position: absolute;
+    width: 30rem;
+    height: 5rem;
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+    padding-top: 1.2rem;
+}
+
 .commentSection{
     width: 48.75rem;
     padding-top: .5rem;
@@ -412,6 +475,14 @@ div.storyContainer{
     display: flex;
     justify-content: left;
     align-items: center;
+}
+
+#date{
+    font-size: 12px;
+}
+
+#userComment{
+    display: inline;
 }
 
 .commentFieldOuter{
@@ -438,6 +509,11 @@ div.storyContainer{
     -moz-box-shadow: none;
     box-shadow: none;
     resize: none; /*remove the resize handle on the bottom right*/
+}
+
+.commentFooter{
+    display: flex;
+
 }
 
 div.img{
@@ -519,6 +595,7 @@ article.inside {
 
 #commentLine {
     margin-top: 3rem;
+    margin-bottom: 2rem;
     width: 104%;
     margin-left: 0;
     height: 0.135rem;
@@ -686,4 +763,48 @@ aside.right2 {
     outline-style: solid;
     outline-color:black;
     outline-width: 0.40rem;
+}
+
+
+.storyContentOverlay {
+    background-color: #efeeee;
+    width: 31.25rem ;
+    height: 48.125rem;
+}
+
+.storyHeader{
+    color: white;
+    position: absolute;
+    width: 31.25rem;
+    background-image: url(./assets/Rectangle\ 17.svg);
+}
+
+p.storyHeader{
+    box-sizing: border-box;
+    padding: 1rem;
+    height: 9rem;
+    position: absolute;
+}
+
+.storyContentOverlay img{
+    display: block;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+#overlayEffect{
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    
+    z-index: 2;
 }
