@@ -36,7 +36,7 @@ h1{
     margin: 0;
 }
 
-tt{
+h1.tt{
     font-family: Jaini;
     font-size: 48pt;
     margin: 0;
@@ -93,7 +93,7 @@ input.searchDimension {
 }
 
 input.searchDimension2 {
-    @include searchD(60rem, 31.375rem,0rem)
+    @include searchD(60rem, 3.375rem,0rem)
 }
 
 @mixin buttonD($bgColor, $firstPadBG, $secondPadBG, $width, $height, $pL, $mL, $bgLink) {
@@ -126,11 +126,11 @@ button.buttonDimension3 {
 }
 
 button.buttonDimension4 {
-    @include buttonD(white,1rem, 1rem, 2.75rem, 2.875rem,3rem, 0rem,url(./assets/arrow_back.svg)no-repeat)
+    @include buttonD(white,1rem, .75rem, 8.75rem, 2.875rem,4rem, 0rem,url(./assets/arrow_back.svg)no-repeat)
 }
 
 button.buttonDimension5 {
-    @include buttonD(white,5rem, 0.6rem, 7rem, 2rem,2rem, 0rem,url(./assets/Share.svg)no-repeat)
+    @include buttonD(white,5rem, 0.6rem, 7rem, 2rem,1rem, 2rem,url(./assets/Share.svg)no-repeat)
 }
 
 button.buttonDimension6 {
@@ -205,12 +205,15 @@ div.layout-grid { //THE MAIN
 }
 
 div.layout-gridArticle { //THE MAIN
+    max-width: 150rem; // Or whatever your max design width is
+    margin: 0 auto;
+    align-items: start;
     @include lGrid(auto auto)
 }
 
 main {
-    display: grid;
     gap: 2rem;
+    display: grid;
 }
 
 aside.left {
@@ -429,22 +432,25 @@ div.img{
     padding-right: $padR;
     padding-top: $padT;
     padding-bottom: $padB;
-    width: 41.8765rem;
-    height: 30.25rem;
     background-color: rgb(255, 255, 255);
 }
 
 article.outer {
+    width: 41.8765rem;
+    height: 30.25rem;
     @include article(1.5rem,1.5rem,0.75rem,0rem,41.8765rem,31.25)
 }
 
 article.inside {
+    display: inline;
+    width: 62.5rem;
+    height: auto;
     @include article(1.5rem, 0rem,0.75rem,0rem,62.5rem,null)
 }
 
 .articleContentSearch {
     position: relative;
-    margin-top: 2rem;
+    padding-top: 8.75rem;
 }
 
 
@@ -459,7 +465,8 @@ article.inside {
     border: none;
 }
 
-.article {
+
+.articleLine {
     @include commentStyle(0,0 ,0 ,0 ,95%,0.325rem)
 }
 
