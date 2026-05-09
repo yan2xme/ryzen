@@ -15,7 +15,7 @@
     src: url(./assets/Jaro-Regular-VariableFont_opsz.ttf);
 }
 
-songText{
+.songText{
     color:v.$greyText;
     display: block;
     text-align: center;
@@ -42,7 +42,7 @@ tt{
     margin: 0;
 }
 
-navbar.top {
+nav.top {
     margin-top: -6rem;
     position: fixed;
     display: flex;
@@ -267,14 +267,14 @@ div.leftText{
 
 header.stories {
     margin-top: 6rem;
-    width: 41.8765rem;
+    width: 40.8765rem;
     height: 15rem;
     background-color: white;
 }
 
 .stories{
     padding-top: 0.75rem ;
-    padding-left: 1.5rem ;
+    padding-left: 1rem ;
     color: rgb(140, 140, 140);
 }
 
@@ -289,6 +289,7 @@ header.stories {
 }
 
 .leftArrow{
+    margin-left: -.675rem;
     background-color: white;
     height: 5rem;
     width: 1.875rem;
@@ -321,6 +322,7 @@ div.stories-grid { //THE MAIN
 }
 
 div.storyContainer{
+    margin-left: -.375rem;
     overflow-y: hidden;
     white-space: nowrap;
     width: 35rem;
@@ -433,7 +435,7 @@ div.img{
 }
 
 article.outer {
-    @include article(1.5rem,0rem,0.75rem,0rem,41.8765rem,31.25)
+    @include article(1.5rem,1rem,0.75rem,0rem,41.8765rem,31.25)
 }
 
 article.inside {
@@ -554,7 +556,7 @@ aside.right2 {
 }
 
 .overlay{
-    @include overlay(-.1.275rem,0,relative,1,20rem,20rem,v.$greyDisc);
+    @include overlay(-1.3rem,0,relative,1,20rem,20rem,v.$greyDisc);
 }
 
 .overlay2{
