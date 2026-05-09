@@ -1,3 +1,4 @@
+@use 'variables' as v;
 
 @font-face {
     font-family: Inconsolata;
@@ -15,7 +16,7 @@
 }
 
 songText{
-    color:#434343fd;
+    color:v.$greyText;
     display: block;
     text-align: center;
     font-family: Jaro;
@@ -23,7 +24,6 @@ songText{
     line-height: 0.8;
     font-size: 68pt;
 }
-
 
 p {
     font-family: Inconsolata;
@@ -49,7 +49,7 @@ navbar.top {
     justify-content: center;
 }
 
-#inside {
+.inside {
     margin-top: 8rem;
     display: flex;
     justify-content: space-between;
@@ -59,7 +59,7 @@ navbar.top {
     height: 3.125rem;
 }
 
-#articleTop {
+.articleTop {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -68,15 +68,16 @@ navbar.top {
     height: 3.125rem;
 }
 
-input.searchDimension {
+
+@mixin searchD($width, $pL, $pR){
     background-color: none;
     background: url(./assets/search.svg)no-repeat 1.25rem 0.75rem;
-    width: 31rem;
+    width: $width;
     height: 2.875rem;
     border: none;
     color: rgb(0, 0, 0);
-    padding-left: 3.375rem;
-    padding-right: 1.375rem;
+    padding-left: $pL;
+    padding-right: $pR;
     text-decoration: none;
     font-size: 16px;
     cursor: pointer;
@@ -84,31 +85,24 @@ input.searchDimension {
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     box-sizing: border-box;        
+};
+
+
+input.searchDimension {
+    @include searchD(31rem,3.375rem,1.375rem)
 }
 
 input.searchDimension2 {
-    background-color: none;
-    background: url(./assets/search.svg)no-repeat 1.25rem 0.75rem;
-    width: 60rem;
-    height: 2.875rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    padding-left: 3.375rem;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box;        
+    @include searchD(60rem, 31.375rem,0rem)
 }
 
-button.buttonDimension {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/add_circle.svg)no-repeat 1rem 0.75rem;
-    width: 8.75rem;
-    height: 2.875rem;
-    padding-left: 3rem;
+@mixin buttonD($bgColor, $firstPadBG, $secondPadBG, $width, $height, $pL, $mL) {
+    background-color: $bgColor;
+    background: url(./assets/add_circle.svg)no-repeat $firstPadBG $secondPadBG;
+    width: $width;
+    height: $height;
+    padding-left: $pL;
+    margin-left: $mL;
     border: none;
     color: rgb(0, 0, 0);
     text-align: left;
@@ -116,159 +110,58 @@ button.buttonDimension {
     font-size: 16px;
     cursor: pointer;
     font-family: Inconsolata;
+
+};
+
+button.buttonDimension {
+    @include buttonD(white,1rem, 0.75rem, 8.75rem, 2.875rem,3rem, 0rem)
 }
 
 button.buttonDimension2 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/star\ \(1\).svg)no-repeat 1rem .5rem;
-    width: 5.75rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(white,1rem, 0.5rem, 5.75rem, 2.875rem,3rem, 0rem)
 }
 
 button.buttonDimension3 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/chat_bubble\ \(1\).svg)no-repeat 1rem .75rem;
-    width: 2.75rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(white,1rem, 1rem, 2.75rem, 2.875rem,3rem, 0rem)
 }
 
 button.buttonDimension4 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/arrow_back.svg)no-repeat 1rem .75rem;
-    width: 7rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(white,1rem, 1rem, 2.75rem, 2.875rem,3rem, 0rem)
 }
 
 button.buttonDimension5 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/Share.svg)no-repeat 5rem 0.6rem;
-    width: 7rem;
-    height: 2rem;
-    margin-left:2rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(white,5rem, 0.6rem, 7rem, 2rem,2rem, 0rem)
 }
 
-
 button.buttonDimension6 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/format_bold.svg)no-repeat .5rem;
-    width: 1rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
+    @include buttonD(white,0.5rem, 0rem, 1rem, 2.875rem,3rem, 0rem)
 }
 
 button.buttonDimension7 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/Italic.svg)no-repeat .5rem;
-    width: 1rem;
-    height: 2.875rem;
-    margin-left: -1rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
+    @include buttonD(white,0.5rem, 0rem, 1rem, 2.875rem,3rem, -1rem)
+
 }
 
 button.buttonDimension8 {
-    background-color:transparent;
-    width: 5.75rem;
-    height: 2.875rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(transparent,0rem, 0rem, 5.75rem, 2.875rem,0rem, 0rem)
 }
 
 
-#buttonDimension9 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/arrow_back.svg)no-repeat 1rem .75rem;
-    width: 5.75rem;
-    margin-left: -2rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+.buttonDimension9 {
+    @include buttonD(white,1rem, 0.75rem, 5.75rem, 2.875rem,3rem, -2rem)
 }
 
 
 .buttonDimension10 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/star.svg)no-repeat 1rem .75rem;
-    width: 5.75rem;
-    margin-left: -1rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(white,1rem, 0.75rem, 5.75rem, 2.875rem,3rem, -2rem)
 }
 
 .buttonDimension11 {
-    background-color: rgb(255, 255, 255);
-    background: url(./assets/chat_bubble.svg)no-repeat 1rem .8rem;
-    width: 5.75rem;
-    margin-left: -1rem;
-    height: 2.875rem;
-    padding-left: 3rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
+    @include buttonD(white,1rem, 0.8rem, 5.75rem, 2.875rem,3rem, -1rem)
+}
+
+button.buttonDimension12 {
+    @include buttonD(transparent,0rem, 0rem, 5.75rem, 2.875rem,0rem, 0rem)
 }
 
 .reply{
@@ -277,25 +170,6 @@ button.buttonDimension8 {
     padding-top: 1rem;
     padding-left: 2rem;
 }
-
-
-
-
-button.buttonDimension12 {
-    background-color:transparent;
-    width: 5.75rem;
-    height: 2.875rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
-}
-
-
-
 
 .vl{
     border-left: 6px solid black;
@@ -316,24 +190,22 @@ p.content{
 }
 
 
-div.layout-grid { //THE MAIN
+@mixin lGrid($gridTemplate){
     background: repeating-conic-gradient(#efeeee 0 25%, #0000 0 50%) 50% / 150px 150px;
     display: grid;
     margin-top: 1rem;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: $gridTemplate;
     gap: 50px;
     justify-content: center;
     align-items: center;
 }
 
+div.layout-grid { //THE MAIN
+    @include lGrid(auto auto auto)
+}
+
 div.layout-gridArticle { //THE MAIN
-    background: repeating-conic-gradient(#efeeee 0 25%, #0000 0 50%) 50% / 150px 150px;
-    display: grid;
-    margin-top: 1rem;
-    grid-template-columns: auto auto;
-    gap: 50px;
-    justify-content: center;
-    align-items: center;
+    @include lGrid(auto auto)
 }
 
 main {
@@ -346,22 +218,22 @@ aside.left {
     margin-top: 5rem;
     width: 19.375rem;
     height: 48.125rem;
-    background-color: rgb(255, 253, 160);
+    background-color: v.$ryzenYellow;
 }
-#top{
+.top{
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 
-#bottom{
+.bottom{
     padding-top: 1rem;
     padding-left: 2rem;
     padding-bottom: 2rem;
     padding-right: 2rem;
 }
 
-#smol{
+.smol{
     font-size: 11pt;
 }
 
@@ -370,11 +242,11 @@ div.botBot{
     padding-top: 5rem;
 }
 
-#logo{
+.logo{
     padding-top: 2rem;
 }
 
-#selectSection{
+.selection-highlight{
     width: 50%;
     margin-left: 0;
     margin-top: 0;
@@ -387,7 +259,7 @@ div.leftText{
     text-align: left;
 }
 
-#ryzen{
+.ryzen{
     padding-top: 2rem;
     width: 15rem;
     height: 15rem;
@@ -397,26 +269,26 @@ header.stories {
     margin-top: 6rem;
     width: 41.8765rem;
     height: 15rem;
-    background-color: rgb(255, 255, 255);
+    background-color: white;
 }
 
-#stories{
+.stories{
     padding-top: 0.75rem ;
     padding-left: 1.5rem ;
     color: rgb(140, 140, 140);
 }
 
-#indicator{
+.indicator{
     color: rgb(140, 140, 140);
 }
 
-#commentCount{
+.commentCount{
     font-size: 32pt;
     font-weight: 10;
     color: rgb(140, 140, 140);
 }
 
-#leftArrow{
+.leftArrow{
     background-color: white;
     height: 5rem;
     width: 1.875rem;
@@ -426,7 +298,7 @@ header.stories {
     vertical-align: -50%;
 }
 
-#rightArrow{
+.rightArrow{
     background-color: white;
     height: 5rem;
     width: 1.875rem;
@@ -436,7 +308,7 @@ header.stories {
     rotate: 180deg;
 }
 
-#embedArrow{
+.embedArrow{
     cursor: pointer;
 }
 
@@ -453,14 +325,14 @@ div.storyContainer{
     white-space: nowrap;
     width: 35rem;
     height: 6.25rem;
-    background-color: rgb(255, 255, 255);
+    background-color: white;
 }
 
-#storyLine{
+.storyLine{
     position: absolute;
     width: 30rem;
     height: 5rem;
-    background-color: rgb(255, 255, 255);
+    background-color: white;
     z-index: 1;
     padding-top: 1.2rem;
 }
@@ -477,11 +349,11 @@ div.storyContainer{
     align-items: center;
 }
 
-#date{
+.date{
     font-size: 12px;
 }
 
-#userComment{
+.userComment{
     display: inline;
 }
 
@@ -489,7 +361,7 @@ div.storyContainer{
     display: inline-block;
     padding: 1rem;
     margin-top: 1rem;
-    background-color: rgb(242 242 242);
+    background-color: v.$dirtyWhite;
     width: 100%;
     resize: none;
 }
@@ -499,7 +371,7 @@ div.storyContainer{
     font-family: Inconsolata;
     border: none;
     padding: 1rem;
-    background-color: rgb(242 242 242);
+    background-color: v.$dirtyWhite;
     width: 95%;
     height: 5rem;
     border: none;
@@ -522,20 +394,8 @@ div.img{
     background-color: rgb(0, 0, 0);
     width: 6.25rem;
     height: 6.25rem;
-
-    clip-path: polygon(
-    50% 0%, 56% 7%, 65% 2%, 69% 10%, 79% 10%, 80% 19%, 
-    90% 21%, 88% 30%, 98% 35%, 92% 43%, 100% 50%, 
-    92% 57%, 98% 65%, 88% 70%, 90% 79%, 80% 81%, 
-    79% 90%, 69% 90%, 65% 98%, 56% 93%, 50% 100%, 
-    44% 93%, 35% 98%, 31% 90%, 21% 90%, 20% 81%, 
-    10% 79%, 12% 70%, 2% 65%, 8% 57%, 0% 50%, 
-    8% 43%, 2% 35%, 12% 30%, 10% 21%, 20% 19%, 
-    21% 10%, 31% 10%, 35% 2%, 44% 7%
-  );
-
+    clip-path: polygon(v.$polygon);
 }
-
 
 .attributes{
     margin-left: -1rem;
@@ -545,102 +405,94 @@ div.img{
     position: relative;
     z-index: 2;
     margin-top: -10.90rem;
-    background-color: rgb(255, 253, 160);
+    background-color: v.$ryzenYellow;
     font-size: 9pt;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-#att1{
+.att1{
     display: flex;
     justify-content: stretch;
 }
 
-#time{
+.time{
     margin: 1rem;
 }
 
-article.outer {
+@mixin article($padL, $padR, $padT, $padB, $width, $height) {
     box-sizing: border-box;
-    padding-top: 0.75rem ;
-    padding-left: 1.5rem ;
+    padding-left: $padL;
+    padding-right: $padR;
+    padding-top: $padT;
+    padding-bottom: $padB;
     width: 41.8765rem;
     height: 31.25rem;
     background-color: rgb(255, 255, 255);
 }
 
-article.inside {
-    padding-bottom: 2rem;
-    box-sizing: border-box;
-    padding-top: 0.75rem ;
-    padding-left: 1.5rem ;
-    width: 62.5rem;
-    background-color: rgb(255, 255, 255);
+article.outer {
+    @include article(1.5rem,0rem,0.75rem,0rem,41.8765rem,31.25)
 }
 
-#articleContentSearch {
+article.inside {
+    @include article(1.5rem, 0rem,0.75rem,0rem,62.5rem,null)
+}
+
+.articleContentSearch {
     position: relative;
     margin-top: 2rem;
 }
 
 
-#article {
-    width: 95%;
-    margin-left: 0;
-    height: 0.325rem;
+@mixin commentStyle($mL,$mR,$mT,$mB, $width, $height){
+    margin-left: $mL;
+    margin-right: $mR;
+    margin-top: $mT;
+    margin-bottom: $mB;
+    width: $width;
+    height: $height;
     background-color: black;
     border: none;
 }
 
-#commentLine {
-    margin-top: 3rem;
-    margin-bottom: 2rem;
-    width: 104%;
-    margin-left: 0;
-    height: 0.135rem;
-    background-color: black;
-    border: none;
+.article {
+    @include commentStyle(0,0 ,0 ,0 ,95%,0.325rem)
 }
 
-#ver {
-    width: 2%;
-    margin-left: -2rem;
-    margin-right: -2rem;
-    height: 1rem;
-    background-color: black;
-    border: none;
+.commentLine {
+    @include commentStyle(0,0 ,3rem ,2rem ,104%,0.135rem )
 }
 
-#articleImg {
+.ver {
+    @include commentStyle(-2rem, -2rem,0,0, 2%,1rem)
+}
+
+.articleImg {
     object-fit:cover;
     padding-top: 1rem;
     width: 97%;
     height: 15rem;
 }
 
-
-footer{
+@mixin footer($pT, $pL,$width) {
     display: flex;
     align-items: center;
-    padding-top: .5rem;
-    width: 37.5rem;
+    padding-top: $pT;
+    padding-left: $pL;
+    width: $width;
 }
 
-footer.articleInside{
-    display: flex;
-    align-items: center;
-    padding-top: .5rem;
-    padding-left: -2rem;
-    width: 60.5rem;
+footer{
+    @include footer(.5rem,0,37.5rem)
+}
+
+footer.articleInside{ @include footer(.5rem,-2rem,60.5rem)
 }
 
 footer.articleInside2{
-    display: flex;
-    align-items: center;
-    padding-top: .5rem;
-    padding-left: -2rem;
-    width: 57.5rem;
+ @include footer(.5rem,-2rem,57.5rem)
 }
 
 .footerCommentField{
@@ -648,16 +500,14 @@ footer.articleInside2{
     justify-content: space-between;
 }
 
-
-
-#butts{
+.butts{
     margin-left: auto;
 }
-#butts2{
+.butts2{
     margin-left: 50%;
 }
 
-#pfp {
+.pfp {
     padding-right: 1rem;
 }
 
@@ -666,55 +516,52 @@ div.rightside{
     gap: 2rem;
 }
 
-
+@mixin aside($bgColor, $width, $height){
+    position: sticky;
+    width: $width;
+    height: $height;
+    background-color: $bgColor;
+}
 
 aside.right1 {
-    position: sticky;
+    @include aside(white,21.875rem,21.875rem);
     overflow: hidden;
     box-sizing: border-box;
     padding: 1rem;
-    width: 21.875rem;
-    height: 21.875rem;
-    background-color: rgb(255, 255, 255);
     margin-top: 5rem;
 }
 
+aside.right2 {
+    @include aside(v.$ryzenYellow,21.875rem,24rem);
+}
 
 
-#overlay{
+@mixin overlay($mT,$mL,$pos,$z,$width,$height,$bgColor){
     box-sizing: border-box;
     transform-origin: center;
-    margin-top: -1.275rem;
-    position: relative;
-    z-index: 1;
-    background-color: rgb(219, 219, 219);
-    width: 20rem;
-    height: 20em;
+    margin-top: $mT;
+    margin-left: $mL;
+    position: $pos;
+    z-index: $z;
+    background-color: $bgColor;
+    width: $width;
+    height: $height;
     -webkit-mask-image: url(./assets/wrigglyAlbum.svg);
     mask-image: url(./assets/wrigglyAlbum.svg);
     mask-size: cover;
     mask-repeat: no-repeat;
+    
 }
 
-#overlay2{
-    box-sizing: border-box;
-    transform-origin: center;
-    box-sizing: border-box;
-    margin-top: 1rem;
-    margin-left: 1.275rem;
-    position: absolute;
-    z-index: 2;
-    background-color: rgb(0, 0, 0);
-    width: 17.5rem;
-    height: 17.5rem;
-    -webkit-mask-image: url(./assets/wrigglyAlbum.svg);
-    mask-image: url(./assets/wrigglyAlbum.svg);
-    mask-size: cover;
-    mask-repeat: no-repeat;
+.overlay{
+    @include overlay(-.1.275rem,0,relative,1,20rem,20rem,v.$greyDisc);
 }
 
+.overlay2{
+    @include overlay(1rem,1.275rem,absolute,2,17.50rem,17.5rem,transparent);
+}
 
-#overlay.animate{
+.overlay.animate{
     animation: spin 10s linear infinite;
 }
 
@@ -727,7 +574,8 @@ aside.right1 {
     }
 }
 
-#albumArt{
+
+.albumArt{
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -736,35 +584,28 @@ aside.right1 {
     left: 0;
 }
 
-aside.right2 {
-    position: sticky;
-    width: 21.875rem;
-    height: 24rem;
-    background-color: rgb(255, 253, 160);
-}
-
-#quickLinks{
+.quickLinks{
     padding: 1rem;
 }
 
-#rightSide{
+.rightSide{
     padding-left: 1rem;
 }
 
-#neoBrutal {
+@mixin neoBrutal{
     outline-style: solid;
     outline-color:black;
     outline-width: 0.40rem;
+}
+
+.neoBrutal {
+    @include neoBrutal();
     box-shadow: 1rem 1rem rgba(0, 0, 0, 0.300);
 }
 
-
-#neoBrutal2 {
-    outline-style: solid;
-    outline-color:black;
-    outline-width: 0.40rem;
+.neoBrutal2 {
+    @include neoBrutal();
 }
-
 
 .storyContentOverlay {
     background-color: #efeeee;
@@ -793,7 +634,7 @@ p.storyHeader{
     height: 100%;
 }
 
-#overlayEffect{
+.overlayEffect{
     position: fixed;
     display: flex;
     justify-content: center;
@@ -805,6 +646,5 @@ p.storyHeader{
     right: 0;
     bottom: 0;
     background-color: rgba(0,0,0,0.5);
-    
     z-index: 2;
 }
