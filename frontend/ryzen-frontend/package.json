@@ -13,6 +13,7 @@
     "vite": "^8.0.4"
   },
   "dependencies": {
+    "@sanity/client": "^7.22.0",
     "typed.js": "^3.0.0"
   }
 }
