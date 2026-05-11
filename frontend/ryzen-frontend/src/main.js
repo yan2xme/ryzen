@@ -20,23 +20,25 @@ const typed = new Typed('#typed', {
 
 let projectID = "usuc0cod";
 let dataset = "production";
+
 let query = encodeURIComponent(`*[_type == "post"] {
   title,
   datePosted,
   blogPosterImage{asset},
-  "content": content[].children[].text
+  "content": content[].children[].text,
+  slug{current}
 }`);
 
 let URL = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query}`;
+
 
 fetch(URL)
   .then((response) => response.json())
   .then(({ result }) => {
     const feedContainer = document.getElementById("post-feed");
 
-
-
     result.forEach(post => {
+
       const div = document.createElement('div');
 
       let imageRef = post.blogPosterImage.asset._ref;
@@ -49,17 +51,17 @@ fetch(URL)
 
       div.className = 'post';
       div.innerHTML = `<article class="outer neoBrutal">
-          <a class="tt" href="article.html">${post.title}</a>
+          <a href="article.html?slug=${post.slug.current}" class="tt">${post.title}</a>
           <hr class="articleLine" />
           <br />
           <p>
-            ${post.content}
+            ${post.content[0]}
           </p>
           <img class="articleImg" src="${realImageUrl}" />
 
           <footer>
             <img
-              src="/assets/Ellipse.png"
+              src="./src/assets/Ellipse.png"
               alt="Profile Picture"
               class="pfp"
             />
@@ -71,8 +73,7 @@ fetch(URL)
           </footer>
         </article>
         <br><br>`
-        ;
-      feedContainer.appendChild(div);
+        ; feedContainer.appendChild(div);
     });
 
   })
