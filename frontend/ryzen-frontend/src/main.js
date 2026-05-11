@@ -23,8 +23,8 @@ let dataset = "production";
 let query = encodeURIComponent(`*[_type == "post"] {
   title,
   datePosted,
-  blogPosterImage{asset{_ref}},
-  "content": content[0].children[0].text
+  blogPosterImage{asset},
+  "content": content[].children[].text
 }`);
 
 let URL = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query}`;
@@ -32,32 +32,28 @@ let URL = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?
 fetch(URL)
   .then((response) => response.json())
   .then(({ result }) => {
-    console.log("Did the data arrive?", result); // Check 1
+    const feedContainer = document.getElementById("post-feed");
 
 
 
-    let loading = document.getElementById("loading");
-    if (loading) {
-      loading.parentNode.removeChild(loading);
-    }
-    let feedContainer = document.getElementById("post-feed");
+    result.forEach(post => {
+      const div = document.createElement('div');
 
-    // 1. Grab that weird ID from your data
-    let imageRef = result[0].blogPosterImage.asset._ref;
+      let imageRef = post.blogPosterImage.asset._ref;
 
-    // 2. Split the ID at the dashes to remove "image" and fix the "jpg" at the end
-    let parts = imageRef.split('-'); // breaks it into: ["image", "041d...", "3130x2075", "jpg"]
+      // 2. Split the ID at the dashes to remove "image" and fix the "jpg" at the end
+      let parts = imageRef.split('-'); // breaks it into: ["image", "041d...", "3130x2075", "jpg"]
 
-    // 3. Put it back together into a real web link
-    let realImageUrl = `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
+      // 3. Put it back together into a real web link
+      let realImageUrl = `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
 
-    if (result.length > 0 && feedContainer) {
-      let dynamicArticle = `<article class="outer neoBrutal">
-          <a class="tt" href="article.html">${result[0].title}</a>
+      div.className = 'post';
+      div.innerHTML = `<article class="outer neoBrutal">
+          <a class="tt" href="article.html">${post.title}</a>
           <hr class="articleLine" />
           <br />
           <p>
-            ${result[0].content}
+            ${post.content}
           </p>
           <img class="articleImg" src="${realImageUrl}" />
 
@@ -73,11 +69,12 @@ fetch(URL)
               <button class="buttonDimension3" type="button">67</button>
             </div>
           </footer>
-        </article>`;
+        </article>
+        <br><br>`
+        ;
+      feedContainer.appendChild(div);
+    });
 
-      feedContainer.innerHTML = dynamicArticle;
-
-    }
   })
   .catch((error) => {
     console.error("The fetch failed entirely:", error);

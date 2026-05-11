@@ -446,8 +446,14 @@ div.img{
 
 article.outer {
     width: 41.8765rem;
-    height: 30.5rem;
+    height: 29.5rem;
     @include article(1.5rem,1.5rem,0.75rem,0rem,41.8765rem,31.25)
+}
+
+article.end {
+        width: 41.8765rem;
+        height: 2.5rem;
+        @include article(1.5rem,1.5rem,0.75rem,0rem,41.8765rem,31.25)
 }
 
 article.inside {
