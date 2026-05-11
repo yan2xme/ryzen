@@ -59,7 +59,7 @@ fetch(URL)
 
           <footer>
             <img
-              src="./src/assets/Ellipse 1.png"
+              src="/assets/Ellipse.png"
               alt="Profile Picture"
               class="pfp"
             />
