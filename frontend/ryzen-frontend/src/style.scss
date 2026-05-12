@@ -1,678 +1,808 @@
-@use 'variables' as v;
+@use "variables" as v;
 
 @font-face {
-    font-family: Inconsolata;
-    src: url(./assets/Inconsolata.ttf);
+  font-family: Inconsolata;
+  src: url(./assets/Inconsolata.ttf);
 }
 
 @font-face {
-    font-family: Jaini;
-    src: url(./assets/JainiPurva-Regular.ttf);
+  font-family: Jaini;
+  src: url(./assets/JainiPurva-Regular.ttf);
 }
 
 @font-face {
-    font-family: Jaro ;
-    src: url(./assets/Jaro-Regular-VariableFont_opsz.ttf);
+  font-family: Jaro;
+  src: url(./assets/Jaro-Regular-VariableFont_opsz.ttf);
 }
 
-.songText{
-    color:v.$greyText;
-    display: block;
-    text-align: center;
-    font-family: Jaro;
-    margin: 0;
-    line-height: 0.8;
-    font-size: 68pt;
+.songText {
+  color: v.$greyText;
+  display: block;
+  text-align: center;
+  font-family: Jaro;
+  margin: 0;
+  line-height: 0.8;
+  font-size: 68pt;
 }
 
 p {
-    font-family: Inconsolata;
-    margin: 0;
+  font-family: Inconsolata;
+  margin: 0;
 }
 
-@mixin malaki($fontSize){
-    font-family: Jaini;
-    font-size: $fontSize;
-    margin: 0;
+@mixin malaki($fontSize) {
+  font-family: Jaini;
+  font-size: $fontSize;
+  margin: 0;
 }
 
-a{
-    text-decoration: none;
-    color: inherit;
-    @include malaki(36pt)
+a {
+  text-decoration: none;
+  color: inherit;
+  @include malaki(36pt);
 }
 
-h1{
-    @include malaki(36pt)
+h1 {
+  @include malaki(36pt);
 }
 
-h1.tt{
-    @include malaki(48pt)
+h1.tt {
+  @include malaki(48pt);
 }
 
 nav.top {
-    margin-top: -6rem;
-    position: fixed;
-    display: flex;
-    justify-content: center;
+    z-index:110;
+  margin-top: -6rem;
+  position: fixed;
+  display: flex;
+  justify-content: center;
 }
 
 .inside {
-    margin-top: 8rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 41.8765rem;
-    gap: 20px;
-    height: 3.125rem;
+  margin-top: 8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 41.8765rem;
+  gap: 20px;
+  height: 3.125rem;
 }
 
 .articleTop {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 62.5rem;
-    gap: 20px;
-    height: 3.125rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 62.5rem;
+  gap: 20px;
+  height: 3.125rem;
 }
 
-
-@mixin searchD($width, $pL, $pR){
-    background-color: none;
-    background: url(./assets/search.svg)no-repeat 1.25rem 0.75rem;
-    width: $width;
-    height: 2.875rem;
-    border: none;
-    color: rgb(0, 0, 0);
-    padding-left: $pL;
-    padding-right: $pR;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box;        
-};
-
+@mixin searchD($width, $pL, $pR) {
+  background-color: none;
+  background: url(./assets/search.svg) no-repeat 1.25rem 0.75rem;
+  width: $width;
+  height: 2.875rem;
+  border: none;
+  color: rgb(0, 0, 0);
+  padding-left: $pL;
+  padding-right: $pR;
+  text-decoration: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: Inconsolata;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box;
+}
 
 input.searchDimension {
-    @include searchD(31rem,3.375rem,1.375rem)
+    background-color: white;
+  @include searchD(31rem, 3.375rem, 1.375rem);
 }
 
 input.searchDimension2 {
-    @include searchD(60rem, 3.375rem,0rem)
+  @include searchD(60rem, 3.375rem, 0rem);
 }
 
-@mixin buttonD($bgColor, $firstPadBG, $secondPadBG, $width, $height, $pL, $mL, $bgLink) {
-    background-color: $bgColor;
-    background: $bgLink $firstPadBG $secondPadBG;
-    width: $width;
-    height: $height;
-    padding-left: $pL;
-    margin-left: $mL;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-family: Inconsolata;
-
-};
+@mixin buttonD(
+  $bgColor,
+  $firstPadBG,
+  $secondPadBG,
+  $width,
+  $height,
+  $pL,
+  $mL,
+  $bgLink
+) {
+  background-color: $bgColor;
+  background: $bgLink $firstPadBG $secondPadBG;
+  width: $width;
+  height: $height;
+  padding-left: $pL;
+  margin-left: $mL;
+  border: none;
+  color: rgb(0, 0, 0);
+  text-align: left;
+  text-decoration: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: Inconsolata;
+}
 
 button.buttonDimension {
-    @include buttonD(white,1rem, 0.75rem, 8.75rem, 2.875rem,3rem, 0rem,url(./assets/add_circle.svg)no-repeat)
+    z-index: 0;
+  @include buttonD(
+    white,
+    1rem,
+    0.75rem,
+    8.75rem,
+    2.875rem,
+    3rem,
+    0rem,
+    url(./assets/add_circle.svg) no-repeat
+  );
 }
 
 button.buttonDimension2 {
-    @include buttonD(white,1rem, 0.65rem, 5.75rem, 2.875rem,3rem, 0rem,url(./assets/star\ \(1\).svg)no-repeat)
+  @include buttonD(
+    white,
+    1rem,
+    0.65rem,
+    5.75rem,
+    2.875rem,
+    3rem,
+    0rem,
+    url(./assets/star\ \(1\).svg) no-repeat
+  );
 }
 
 button.buttonDimension3 {
-    @include buttonD(white,1rem, .8rem, 2.75rem, 2.875rem,3rem, 0rem,url(./assets/chat_bubble\ \(1\).svg)no-repeat)
+  @include buttonD(
+    white,
+    1rem,
+    0.8rem,
+    2.75rem,
+    2.875rem,
+    3rem,
+    0rem,
+    url(./assets/chat_bubble\ \(1\).svg) no-repeat
+  );
 }
 
 .buttonDimension4 {
-    align-content: center;
-    @include buttonD(white,1rem, .75rem, 5.75rem, 2.875rem,4rem, 0rem,url(./assets/arrow_back.svg)no-repeat)
+  align-content: center;
+  @include buttonD(
+    white,
+    1rem,
+    0.75rem,
+    5.75rem,
+    2.875rem,
+    4rem,
+    0rem,
+    url(./assets/arrow_back.svg) no-repeat
+  );
 }
 
 button.buttonDimension5 {
-    @include buttonD(white,5rem, 0.6rem, 7rem, 2rem,1rem, 2rem,url(./assets/Share.svg)no-repeat)
+  @include buttonD(
+    white,
+    5rem,
+    0.6rem,
+    7rem,
+    2rem,
+    1rem,
+    2rem,
+    url(./assets/Share.svg) no-repeat
+  );
 }
 
 button.buttonDimension6 {
-    @include buttonD(white,0.5rem, 0rem, 1rem, 2.875rem,3rem, 0rem,url(./assets/format_bold.svg)no-repeat)
+  @include buttonD(
+    white,
+    0.5rem,
+    0rem,
+    1rem,
+    2.875rem,
+    3rem,
+    0rem,
+    url(./assets/format_bold.svg) no-repeat
+  );
 }
 
 button.buttonDimension7 {
-    @include buttonD(white,0.5rem, 0rem, 1rem, 2.875rem,3rem, -1rem,url(./assets/Italic.svg)no-repeat)
-
+  @include buttonD(
+    white,
+    0.5rem,
+    0rem,
+    1rem,
+    2.875rem,
+    3rem,
+    -1rem,
+    url(./assets/Italic.svg) no-repeat
+  );
 }
 
 button.buttonDimension8 {
-    @include buttonD(transparent,0rem, 0rem, 5.75rem, 2.875rem,0rem, 0rem,null)
+  @include buttonD(
+    transparent,
+    0rem,
+    0rem,
+    5.75rem,
+    2.875rem,
+    0rem,
+    0rem,
+    null
+  );
 }
-
 
 .buttonDimension9 {
-    @include buttonD(white,1rem, 0.75rem, 5.75rem, 2.875rem,3rem, -2rem,url(./assets/arrow_back.svg)no-repeat)
+  @include buttonD(
+    white,
+    1rem,
+    0.75rem,
+    5.75rem,
+    2.875rem,
+    3rem,
+    -2rem,
+    url(./assets/arrow_back.svg) no-repeat
+  );
 }
 
-
 .buttonDimension10 {
-    @include buttonD(white,1rem, 0.75rem, 5.75rem, 2.875rem,3rem, -2rem,url(./assets/star.svg)no-repeat)
+  @include buttonD(
+    white,
+    1rem,
+    0.75rem,
+    5.75rem,
+    2.875rem,
+    3rem,
+    -2rem,
+    url(./assets/star.svg) no-repeat
+  );
 }
 
 .buttonDimension11 {
-    @include buttonD(white,1rem, 0.8rem, 5.75rem, 2.875rem,3rem, -1rem,url(./assets/chat_bubble.svg)no-repeat)
+  @include buttonD(
+    white,
+    1rem,
+    0.8rem,
+    5.75rem,
+    2.875rem,
+    3rem,
+    -1rem,
+    url(./assets/chat_bubble.svg) no-repeat
+  );
 }
 
 button.buttonDimension12 {
-    @include buttonD(transparent,0rem, 0rem, 5.75rem, 2.875rem,0rem, 0rem,null)
+  @include buttonD(
+    transparent,
+    0rem,
+    0rem,
+    5.75rem,
+    2.875rem,
+    0rem,
+    0rem,
+    null
+  );
 }
 
-.reply{
-    border-left: 2px solid black;
-    margin-left: 5rem;
-    padding-top: 1rem;
-    padding-left: 2rem;
+.reply {
+  border-left: 2px solid black;
+  margin-left: 5rem;
+  padding-top: 1rem;
+  padding-left: 2rem;
 }
 
-.vl{
-    border-left: 6px solid black;
-    height: 1rem;
-    margin: 0;
+.vl {
+  border-left: 6px solid black;
+  height: 1rem;
+  margin: 0;
 }
 
-p.body::first-letter{
-    float: left;
-    font-size: 45px;
-    line-height: 1;
-    font-weight: bold;
-    margin-right: 9px;
+p.body::first-letter {
+  float: left;
+  font-size: 45px;
+  line-height: 1;
+  font-weight: bold;
+  margin-right: 9px;
 }
 
-p.content{
-    text-indent: 2rem;
+p.content {
+  text-indent: 2rem;
 }
 
-
-@mixin lGrid($gridTemplate){
-    background: repeating-conic-gradient(#efeeee 0 25%, #0000 0 50%) 50% / 150px 150px;
-    display: grid;
-    margin-top: 1rem;
-    grid-template-columns: $gridTemplate;
-    gap: 50px;
-    justify-content: center;
-    align-items: center;
+@mixin lGrid($gridTemplate) {
+  background: repeating-conic-gradient(#efeeee 0 25%, #0000 0 50%) 50% / 150px
+    150px;
+  display: grid;
+  margin-top: 1rem;
+  grid-template-columns: $gridTemplate;
+  gap: 50px;
+  justify-content: center;
+  align-items: center;
 }
 
-div.layout-grid { //THE MAIN
-    @include lGrid(auto auto auto)
+div.layout-grid {
+  //THE MAIN
+  @include lGrid(auto auto auto);
 }
 
-div.layout-gridArticle { //THE MAIN
-    max-width: 150rem; // Or whatever your max design width is
-    margin: 0 auto;
-    align-items: start;
-    @include lGrid(auto auto)
+div.layout-gridArticle {
+  //THE MAIN
+  max-width: 100rem; // Or whatever your max design width is
+  margin: 0 auto;
+  align-items: start;
+  @include lGrid(auto auto);
 }
 
 main {
-    gap: 2rem;
-    display: grid;
+  gap: 2rem;
+  display: grid;
+}
+
+@mixin aside($mT, $mL) {
+  position: fixed;
+  margin-top: $mT;
+  margin-left: $mL;
+  width: 19.375rem;
+  height: 48.125rem;
+  background-color: v.$ryzenYellow;
 }
 
 aside.left {
-    position: sticky;
-    margin-top: 5rem;
-    width: 19.375rem;
-    height: 48.125rem;
-    background-color: v.$ryzenYellow;
-}
-.top{
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+  @include aside(-39.85rem, -19.75rem);
 }
 
-.bottom{
-    padding-top: 1rem;
-    padding-left: 2rem;
-    padding-bottom: 2rem;
-    padding-right: 2rem;
+aside.left2 {
+  @include aside(-20.85rem,-2rem);
 }
 
-.smol{
-    font-size: 11pt;
+div.leftSide {
+  display: grid;
 }
 
-div.botBot{
-    line-height: 1.2;
-    padding-top: 5rem;
+.top {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
-.logo{
-    font-size: 30pt;
-    margin-top: -2rem;
-    padding-bottom: 4rem;
+.bottom {
+  padding-top: 1rem;
+  padding-left: 2rem;
+  padding-bottom: 2rem;
+  padding-right: 2rem;
 }
 
-.selection-highlight{
-    width: 50%;
-    margin-left: 0;
-    margin-top: 0;
-    height: 0.325rem;
-    background-color: black;
-    border: none;
+.smol {
+  font-size: 11pt;
 }
 
-div.leftText{
-    text-align: left;
+div.botBot {
+  line-height: 1.2;
+  padding-top: 5rem;
 }
 
-.ryzen{
-    padding-top: 2rem;
-    width: 15rem;
-    height: 15rem;
+.logo {
+  font-size: 30pt;
+  margin-top: -2rem;
+  padding-bottom: 4rem;
+}
+
+.selection-highlight {
+  width: 50%;
+  margin-left: 0;
+  margin-top: 0;
+  height: 0.325rem;
+  background-color: black;
+  border: none;
+}
+
+div.leftText {
+  text-align: left;
+}
+
+.ryzen {
+  padding-top: 2rem;
+  width: 15rem;
+  height: 15rem;
 }
 
 header.stories {
-    margin-top: 6rem;
-    width: 40.8765rem;
-    height: 15rem;
-    background-color: white;
+  margin-top: 6rem;
+  width: 40.8765rem;
+  height: 15rem;
+  background-color: white;
 }
 
-.stories{
-    padding-top: 0.75rem ;
-    padding-left: 1rem ;
-    color: rgb(140, 140, 140);
+.stories {
+  padding-top: 0.75rem;
+  padding-left: 1rem;
+  color: rgb(140, 140, 140);
 }
 
-.indicator{
-    color: rgb(140, 140, 140);
+.indicator {
+  color: rgb(140, 140, 140);
 }
 
-.commentCount{
-    font-size: 32pt;
-    font-weight: 10;
-    color: rgb(140, 140, 140);
+.commentCount {
+  font-size: 32pt;
+  font-weight: 10;
+  color: rgb(140, 140, 140);
 }
 
-.leftArrow{
-    margin-left: -.675rem;
-    background-color: white;
-    height: 5rem;
-    width: 1.875rem;
-    border: none;
-    text-decoration: none;
-    cursor: pointer;
-    vertical-align: -50%;
+.leftArrow {
+  margin-left: -0.675rem;
+  background-color: white;
+  height: 5rem;
+  width: 1.875rem;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  vertical-align: -50%;
 }
 
-.rightArrow{
-    background-color: white;
-    height: 5rem;
-    width: 1.875rem;
-    border: none;
-    text-decoration: none;
-    cursor: pointer;
-    rotate: 180deg;
+.rightArrow {
+  background-color: white;
+  height: 5rem;
+  width: 1.875rem;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  rotate: 180deg;
 }
 
-.embedArrow{
-    cursor: pointer;
+.embedArrow {
+  cursor: pointer;
 }
 
-div.stories-grid { //THE MAIN
-    display: grid;
-    padding: 1rem;
-    grid-template-columns: auto auto auto;
-    justify-content: space-between;
-    align-items: center;
+div.stories-grid {
+  //THE MAIN
+  display: grid;
+  padding: 1rem;
+  grid-template-columns: auto auto auto;
+  justify-content: space-between;
+  align-items: center;
 }
 
-div.storyContainer{
-    margin-left: -.375rem;
-    overflow-y: hidden;
-    white-space: nowrap;
-    width: 35rem;
-    height: 6.25rem;
-    background-color: white;
+div.storyContainer {
+  margin-left: -0.375rem;
+  overflow-y: hidden;
+  white-space: nowrap;
+  width: 35rem;
+  height: 6.25rem;
+  background-color: white;
 }
 
-.storyLine{
-    position: absolute;
-    width: 30rem;
-    height: 5rem;
-    background-color: white;
-    z-index: 1;
-    padding-top: 1.2rem;
+.storyLine {
+  position: absolute;
+  width: 30rem;
+  height: 5rem;
+  background-color: white;
+  z-index: 1;
+  padding-top: 1.2rem;
 }
 
-.commentSection{
-    width: 48.75rem;
-    padding-top: .5rem;
-    padding-left: 4rem;
+.commentSection {
+  width: 48.75rem;
+  padding-top: 0.5rem;
+  padding-left: 4rem;
 }
 
-.userPfp{
-    display: flex;
-    justify-content: left;
-    align-items: center;
+.userPfp {
+  display: flex;
+  justify-content: left;
+  align-items: center;
 }
 
-.date{
-    font-size: 12px;
+.date {
+  font-size: 12px;
 }
 
-.userComment{
-    display: inline;
+.userComment {
+  display: inline;
 }
 
-.commentFieldOuter{
-    display: inline-block;
-    padding: 1rem;
-    margin-top: 1rem;
-    background-color: v.$dirtyWhite;
-    width: 100%;
-    resize: none;
+.commentFieldOuter {
+  display: inline-block;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: v.$dirtyWhite;
+  width: 100%;
+  resize: none;
 }
 
-.commentFieldInner{
-    font-size: 16px;
-    font-family: Inconsolata;
-    border: none;
-    padding: 1rem;
-    background-color: v.$dirtyWhite;
-    width: 95%;
-    height: 5rem;
-    border: none;
-    overflow: auto;
-    outline: none;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-    resize: none; /*remove the resize handle on the bottom right*/
+.commentFieldInner {
+  font-size: 16px;
+  font-family: Inconsolata;
+  border: none;
+  padding: 1rem;
+  background-color: v.$dirtyWhite;
+  width: 95%;
+  height: 5rem;
+  border: none;
+  overflow: auto;
+  outline: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  resize: none; /*remove the resize handle on the bottom right*/
 }
 
-.commentFooter{
-    display: flex;
-
+.commentFooter {
+  display: flex;
 }
 
-div.img{
-    margin-right: 10px;
-    display: inline-block;
-    background-color: rgb(0, 0, 0);
-    width: 6.25rem;
-    height: 6.25rem;
-    clip-path: polygon(v.$polygon);
+div.img {
+  margin-right: 10px;
+  display: inline-block;
+  background-color: rgb(0, 0, 0);
+  width: 6.25rem;
+  height: 6.25rem;
+  clip-path: polygon(v.$polygon);
 }
 
-.attributes{
-    margin-left: -1rem;
-    padding-left: 1rem;
-    width: 105%;
-    height: 15%;
-    position: relative;
-    z-index: 2;
-    margin-top: -10.90rem;
-    background-color: v.$ryzenYellow;
-    font-size: 9pt;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.attributes {
+  margin-left: -1rem;
+  padding-left: 1rem;
+  width: 105%;
+  height: 15%;
+  position: relative;
+  z-index: 2;
+  margin-top: -10.9rem;
+  background-color: v.$ryzenYellow;
+  font-size: 9pt;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.att1{
-    display: flex;
-    justify-content: stretch;
+.att1 {
+  display: flex;
+  justify-content: stretch;
 }
 
-.time{
-    margin: 1rem;
+.time {
+  margin: 1rem;
 }
 
 @mixin article($padL, $padR, $padT, $padB, $width, $height) {
-    box-sizing: border-box;
-    padding-left: $padL;
-    padding-right: $padR;
-    padding-top: $padT;
-    padding-bottom: $padB;
-    background-color: rgb(255, 255, 255);
+  box-sizing: border-box;
+  padding-left: $padL;
+  padding-right: $padR;
+  padding-top: $padT;
+  padding-bottom: $padB;
+  background-color: rgb(255, 255, 255);
 }
 
 article.outer {
-    width: 41.8765rem;
-    height: 29.5rem;
-    @include article(1.5rem,1.5rem,0.75rem,0rem,41.8765rem,31.25)
+  width: 41.8765rem;
+  height: 29.5rem;
+  @include article(1.5rem, 1.5rem, 0.75rem, 0rem, 41.8765rem, 31.25);
 }
 
 article.end {
-        width: 41.8765rem;
-        height: 2.5rem;
-        @include article(1.5rem,1.5rem,0.75rem,0rem,41.8765rem,31.25)
+  width: 41.8765rem;
+  height: 2.5rem;
+  @include article(1.5rem, 1.5rem, 0.75rem, 0rem, 41.8765rem, 31.25);
 }
 
 article.inside {
-    display: inline;
-    width: 62.5rem;
-    height: auto;
-    @include article(1.5rem, 0rem,0.75rem,0rem,62.5rem,null)
+  margin-left: 17.5rem;
+  display: inline;
+  width: 62.5rem;
+  height: auto;
+  @include article(1.5rem, 0rem, 0.75rem, 0rem, 62.5rem, null);
 }
 
 .articleContentSearch {
-    position: relative;
-    padding-top: 8.75rem;
+      margin-left: 17.5rem;
+  position: relative;
+  padding-top: 8.75rem;
 }
 
-
-@mixin commentStyle($mL,$mR,$mT,$mB, $width, $height){
-    margin-left: $mL;
-    margin-right: $mR;
-    margin-top: $mT;
-    margin-bottom: $mB;
-    width: $width;
-    height: $height;
-    background-color: black;
-    border: none;
+@mixin commentStyle($mL, $mR, $mT, $mB, $width, $height) {
+  margin-left: $mL;
+  margin-right: $mR;
+  margin-top: $mT;
+  margin-bottom: $mB;
+  width: $width;
+  height: $height;
+  background-color: black;
+  border: none;
 }
-
 
 .articleLine {
-    @include commentStyle(0,0 ,0 ,0 ,95%,0.325rem)
+  @include commentStyle(0, 0, 0, 0, 95%, 0.325rem);
 }
 
 .commentLine {
-    @include commentStyle(0,0 ,3rem ,2rem ,104%,0.135rem )
+  @include commentStyle(0, 0, 3rem, 2rem, 104%, 0.135rem);
 }
 
 .ver {
-    @include commentStyle(-2rem, -2rem,0,0, 2%,1rem)
+  @include commentStyle(-2rem, -2rem, 0, 0, 2%, 1rem);
 }
 
 .articleImg {
-    object-fit:cover;
-    padding-top: 1rem;
-    width: 97%;
-    height: 15rem;
+  object-fit: cover;
+  padding-top: 1rem;
+  width: 97%;
+  height: 15rem;
 }
 
-@mixin footer($pT, $pL,$width) {
-    display: flex;
-    align-items: center;
-    padding-top: $pT;
-    padding-left: $pL;
-    width: $width;
+@mixin footer($pT, $pL, $width) {
+  display: flex;
+  align-items: center;
+  padding-top: $pT;
+  padding-left: $pL;
+  width: $width;
 }
 
-footer{
-    @include footer(.5rem,0,37.5rem)
+footer {
+  @include footer(0.5rem, 0, 37.5rem);
 }
 
-footer.articleInside{ @include footer(.5rem,-2rem,60.5rem)
+footer.articleInside {
+  @include footer(0.5rem, -2rem, 60.5rem);
 }
 
-footer.articleInside2{
- @include footer(.5rem,-2rem,57.5rem)
+footer.articleInside2 {
+  @include footer(0.5rem, -2rem, 57.5rem);
 }
 
-.footerCommentField{
-    display: flex;
-    justify-content: space-between;
+.footerCommentField {
+  display: flex;
+  justify-content: space-between;
 }
 
-.butts{
-    margin-left: auto;
+.butts {
+  margin-left: auto;
 }
-.butts2{
-    margin-left: 50%;
+.butts2 {
+  margin-left: 50%;
 }
 
 .pfp {
-    padding-right: 1rem;
+  padding-right: 1rem;
 }
 
-div.rightside{
-    display:grid;
-    gap: 2rem;
+div.rightside {
+  display: grid;
+  gap: 2rem;
 }
 
-@mixin aside($bgColor, $width, $height){
-    position: sticky;
-    width: $width;
-    height: $height;
-    background-color: $bgColor;
+@mixin aside($bgColor, $width, $height) {
+  width: $width;
+  height: $height;
+  background-color: $bgColor;
 }
 
 aside.right1 {
-    @include aside(white,21.875rem,21.875rem);
-    overflow: hidden;
-    box-sizing: border-box;
-    padding: 1rem;
-    margin-top: 5rem;
+  position: fixed;
+  @include aside(white, 21.875rem, 21.875rem);
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 1rem;
+  margin-top: -39.75rem;
 }
 
 aside.right2 {
-    @include aside(v.$ryzenYellow,21.875rem,24rem);
+  position: fixed;
+  margin-top: -15.1rem;
+  @include aside(v.$ryzenYellow, 21.875rem, 24rem);
 }
 
-
-@mixin overlay($mT,$mL,$pos,$z,$width,$height,$bgColor){
-    box-sizing: border-box;
-    transform-origin: center;
-    margin-top: $mT;
-    margin-left: $mL;
-    position: $pos;
-    z-index: $z;
-    background-color: $bgColor;
-    width: $width;
-    height: $height;
-    -webkit-mask-image: url(./assets/wrigglyAlbum.svg);
-    mask-image: url(./assets/wrigglyAlbum.svg);
-    mask-size: cover;
-    mask-repeat: no-repeat;
-    
+@mixin overlay($mT, $mL, $pos, $z, $width, $height, $bgColor) {
+  box-sizing: border-box;
+  transform-origin: center;
+  margin-top: $mT;
+  margin-left: $mL;
+  position: $pos;
+  z-index: $z;
+  background-color: $bgColor;
+  width: $width;
+  height: $height;
+  -webkit-mask-image: url(./assets/wrigglyAlbum.svg);
+  mask-image: url(./assets/wrigglyAlbum.svg);
+  mask-size: cover;
+  mask-repeat: no-repeat;
 }
 
-.overlay{
-    @include overlay(-1.3rem,0,relative,1,20rem,20rem,v.$greyDisc);
+.overlay {
+  @include overlay(-1.3rem, 0, relative, 1, 20rem, 20rem, v.$greyDisc);
 }
 
-.overlay2{
-    @include overlay(1rem,1.275rem,absolute,2,17.50rem,17.5rem,transparent);
+.overlay2 {
+  @include overlay(1rem, 1.275rem, absolute, 2, 17.5rem, 17.5rem, transparent);
 }
 
-.overlay.animate{
-    animation: spin 10s linear infinite;
+.overlay.animate {
+  animation: spin 10s linear infinite;
 }
 
 @keyframes spin {
-    0%{
-        transform: rotate(0deg);
-    }
-    100%{
-        transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-
-.albumArt{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
+.albumArt {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.quickLinks{
-    padding: 1rem;
+.quickLinks {
+  padding: 1rem;
 }
 
-.rightSide{
-    padding-left: 1rem;
+.rightSide {
+  padding-left: 1rem;
 }
 
-@mixin neoBrutal{
-    outline-style: solid;
-    outline-color:black;
-    outline-width: 0.40rem;
+@mixin neoBrutal {
+  outline-style: solid;
+  outline-color: black;
+  outline-width: 0.4rem;
 }
 
 .neoBrutal {
-    @include neoBrutal();
-    box-shadow: 1rem 1rem rgba(0, 0, 0, 0.300);
+  @include neoBrutal();
+  box-shadow: 1rem 1rem rgba(0, 0, 0, 0.3);
 }
 
 .neoBrutal2 {
-    @include neoBrutal();
+  @include neoBrutal();
 }
 
 .storyContentOverlay {
-    background-color: #efeeee;
-    width: 31.25rem ;
-    height: 48.125rem;
+  background-color: #efeeee;
+  width: 31.25rem;
+  height: 48.125rem;
 }
 
-.storyHeader{
-    color: white;
-    position: absolute;
-    width: 31.25rem;
-    background-image: url(./assets/Rectangle\ 17.svg);
+.storyHeader {
+  color: white;
+  position: absolute;
+  width: 31.25rem;
+  background-image: url(./assets/Rectangle\ 17.svg);
 }
 
-p.storyHeader{
-    box-sizing: border-box;
-    padding: 1rem;
-    height: 9rem;
-    position: absolute;
+p.storyHeader {
+  box-sizing: border-box;
+  padding: 1rem;
+  height: 9rem;
+  position: absolute;
 }
 
-.storyContentOverlay img{
-    display: block;
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
+.storyContentOverlay img {
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
-.overlayEffect{
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 2;
+.overlayEffect {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2;
 }
 
 #typed {
@@ -680,4 +810,3 @@ p.storyHeader{
   font-size: 16pt;
   color: black;
 }
-
