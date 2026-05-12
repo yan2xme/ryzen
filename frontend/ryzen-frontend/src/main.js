@@ -29,9 +29,17 @@ let query = encodeURIComponent(`*[_type == "post"] {
   slug{current}
 }`);
 
+
+let query2 = encodeURIComponent(`*[_type == "stories"] {
+  datePosted,
+  storyContent{asset},
+  slug{current}
+}`);
+
 let URL = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query}`;
+let URL2 = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query2}`;
 
-
+//post fetching
 fetch(URL)
   .then((response) => response.json())
   .then(({ result }) => {
@@ -74,6 +82,36 @@ fetch(URL)
         </article>
         <br><br>`
         ; feedContainer.appendChild(div);
+    });
+
+  })
+  .catch((error) => {
+    console.error("The fetch failed entirely:", error);
+  });
+
+//story fetching
+fetch(URL2)
+  .then((response) => response.json())
+  .then(({ result }) => {
+    const storyContainer = document.getElementById("storyContainer");
+
+    result.forEach(stories => {
+
+      const div = document.createElement('div');
+
+      let imageRef = stories.storyContent.asset._ref;
+
+      // 2. Split the ID at the dashes to remove "image" and fix the "jpg" at the end
+      let parts = imageRef.split('-'); // breaks it into: ["image", "041d...", "3130x2075", "jpg"]
+
+      // 3. Put it back together into a real web link
+      let realImageUrl2 = `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
+
+      div.className = 'story';
+      div.innerHTML = `<a href="index.html">
+                <img src="${realImageUrl2}" class="pol">
+              </a>`
+        ; storyContainer.appendChild(div);
     });
 
   })
