@@ -1,5 +1,6 @@
 import './style.scss'
 import Typed from 'typed.js';
+import myEllipse from './assets/Ellipse.png';
 
 
 function startAnimation() {
@@ -69,7 +70,7 @@ fetch(URL)
 
           <footer>
             <img
-              src="./src/assets/Ellipse.png"
+              src="${myEllipse}"
               alt="Profile Picture"
               class="pfp"
             />
