@@ -67,9 +67,12 @@ fetch(URL)
           <a href="article.html?slug=${post.slug.current}" class="tt">${post.title}</a>
           <hr class="articleLine" />
           <br />
-          <p>
+
+          <div"> 
+          <p class="enclosure">
             ${post.content[0]}
           </p>
+          </div>
           <img class="articleImg" src="${realImageUrl}" />
 
           <footer>
@@ -124,7 +127,7 @@ fetch(URL2)
 
 
 
-  
+
 
 const postInnerContainer = document.getElementById("postInnerFeed");
 if (postInnerContainer) {
