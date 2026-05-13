@@ -269,10 +269,70 @@ if (postInnerContainer) {
     .catch((error) => {
       console.error("The fetch failed entirely:", error);
     });
-
-
 }
 
 
+async function syncTurntable() {
+  try {
+    const res = await fetch('/api/spotify');
+    if (!res.ok) return;
 
+    const data = await res.json();
 
+    // Mapping your specific HTML elements
+    const statusLabel = document.querySelector('.right1 p:first-child');
+    const bigDisplayText = document.querySelector('.songText');
+    const recordDisc = document.querySelector('.overlay');
+    const albumArt = document.querySelector('.albumArt');
+
+    // Attributes section
+    const artistName = document.querySelector('.artist');
+    const songName = document.querySelector('.name');
+    const albumName = document.querySelector('.albumName');
+    const timeDisplay = document.querySelector('.time');
+
+    // Update the Text Content
+    songName.innerText = data.title;
+    artistName.innerText = data.artist;
+    bigDisplayText.innerText = data.artist.toUpperCase();
+
+    // Fallback for album name (if your API returns it)
+    if (data.album) albumName.innerText = data.album;
+
+    // Handle empty image safely so it doesn't show a broken image icon
+    if (data.albumImageUrl) {
+      albumArt.src = data.albumImageUrl;
+    } else {
+      albumArt.src = './src/assets/albumArt.jpg'; // Falls back to your default static image
+    }
+
+    if (data.isPlaying) {
+      statusLabel.innerText = "NOW PLAYING";
+      recordDisc.classList.add('animate'); // Start the spin
+
+      // Calculate the "Bump" style timestamp
+      const mins = Math.floor(data.progressMs / 60000);
+      const secs = Math.floor((data.progressMs % 60000) / 1000).toString().padStart(2, '0');
+      timeDisplay.innerText = `${mins}:${secs}`;
+    } else {
+      recordDisc.classList.remove('animate'); // Stop the spin
+      timeDisplay.innerText = "--:--";
+
+      // THE FIX: Check if we actually have a playedAt timestamp
+      if (data.playedAt) {
+        const lastPlayed = new Date(data.playedAt);
+        const diff = Math.floor((new Date() - lastPlayed) / 60000);
+        statusLabel.innerText = diff < 60 ? `PLAYED ${diff}M AGO` : `PLAYED ${Math.floor(diff / 60)}H AGO`;
+      } else {
+        // The "Absolute Fallback" state (No History)
+        statusLabel.innerText = "SILENCE";
+      }
+    }
+  } catch (err) {
+    console.error("Turntable sync error:", err);
+  }
+}
+
+// Check for updates every 10 seconds
+setInterval(syncTurntable, 10000);
+syncTurntable();
