@@ -2,16 +2,13 @@ import './style.scss'
 import Typed from 'typed.js';
 import myEllipse from './assets/Ellipse.png';
 import gradient from './assets/linearGradient.svg';
+import { initThreeTurntable, updatePlayback } from './three-turntable.js';
 
 
-function startAnimation() {
-
-  const recordPlayer = document.getElementById("overlay");
-
-  recordPlayer.classList.add("animate");
+const right1 = document.querySelector('.right1');
+if (right1) {
+  initThreeTurntable(right1);
 }
-
-
 
 
 const typed = new Typed('#typed', {
@@ -436,6 +433,9 @@ ttEls.disc.addEventListener('pointercancel', () => {
 
 // ─── SPOTIFY API SYNC ───
 async function syncTurntable() {
+
+  updatePlayback(ttState.isPlaying, ttState.progressMs, ttState.durationMs);
+
   try {
     const res = await fetch('/api/spotify');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -452,17 +452,20 @@ async function syncTurntable() {
     ttState.durationMs = data.durationMs || 0;
     ttState.lastSyncTime = Date.now();
 
+    // ─── UPDATE MARQUEE (must happen after text updates) ───
+    syncMarquee();
+
     if (ttState.isPlaying) {
       ttEls.status.innerText = 'NOW PLAYING';
       if (!ttState.isDragging) ttEls.disc.classList.add('animate');
       updateTime(ttState.progressMs);
       startLiveTimer();
-      syncAudio(data.previewUrl, true);   // ▶️ FIXED: passes both args
+      syncAudio(data.previewUrl, true);
     } else {
       if (!ttState.isDragging) ttEls.disc.classList.remove('animate');
       stopLiveTimer();
       ttEls.time.innerText = '--:--';
-      syncAudio(null, false);            // ⏹ FIXED: passes both args
+      syncAudio(null, false);
 
       if (data.playedAt) {
         const diffMin = Math.floor((Date.now() - new Date(data.playedAt)) / 60000);
@@ -479,6 +482,26 @@ async function syncTurntable() {
   }
 }
 
+
+
 // ─── BOOT ───
 syncTurntable();
 setInterval(syncTurntable, 5000);
+
+
+function syncMarquee() {
+  const content = document.querySelector('.marquee-content');
+  if (!content) return;
+
+  // Read from the data we just fetched, not the DOM
+  const artist = ttEls.artist.innerText || 'Unknown';
+  const song = ttEls.song.innerText || 'Unknown';
+  const album = ttEls.album.innerText || '';
+
+  const separator = '<p> • </p>';
+  const copy = `<p class="artist">${artist}</p>${separator}<p class="name">${song}</p>${separator}<p class="albumName">${album}</p>${separator}`;
+
+  content.innerHTML = copy + copy;
+}
+
+// Inside syncTurntable, after all text updates:

@@ -23,6 +23,10 @@
   margin: 0;
   line-height: 0.8;
   font-size: 68pt;
+  min-height: 0.9em;
+  overflow-wrap: break-word; 
+   hyphens: auto; 
+     white-space: normal;
 }
 
 @mixin p{
@@ -579,28 +583,34 @@ div.storyContainer {
   justify-content: space-between;
   z-index: 2;
 }
-
 .att1 {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  overflow-x: auto;     // Scrolls when text is too long
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow: hidden;
   white-space: nowrap;
-  min-width: 0;         // Critical: lets flex child shrink below content size
   flex: 1;
-
-  &::-webkit-scrollbar {
-    display: none;      // Hide scrollbar across all browsers
-  }
-
-  p {
-    flex-shrink: 0;
-    margin: 0;
-  }
+  min-width: 0;
+  position: relative;
+  padding-left: 0.5rem;  // Safe zone so text doesn't clip at edge
 }
 
+.marquee-content {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: max-content;
+  animation: marqueeSlide 20s linear infinite;
+  padding-right: 2rem;   // Gap before loop restarts so no seam
+}
+
+@keyframes marqueeSlide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 .time {
   margin: 0;
   margin-left: 0.5rem;
@@ -765,6 +775,7 @@ aside.right2 {
 }
 
 .overlay {
+   z-index: 3;
   @include overlay(-1.3rem, 0, relative, 1, 20rem, 20rem, v.$greyDisc);
 }
 

@@ -71,6 +71,7 @@
         <aside class="right1 neoBrutal">
           <p>Now Playing</p>
           <p></p>
+
           <p class="songText">Sunkissed LOLA</p>
 
           <div class="animate overlay">
@@ -83,18 +84,19 @@
 
           <div class="attributes">
             <div class="att1">
-              <p class="artist">Sunkissed Lola</p>
-              <p> • </p>
-              <p class="name">Tumatalima</p>
-              <p> • </p>
-              <p class="albumName">Olaholah</p>
+              <div class="marquee-content">
+                <p class="artist">Sunkissed Lola</p>
+                <p> • </p>
+                <p class="name">Tumatalima</p>
+                <p> • </p>
+                <p class="albumName">Olaholah</p>
+                <p> • </p>
+              </div>
             </div>
 
             <p class="time">1:43</p>
           </div>
         </aside>
-
-
 
         <aside class="right2 neoBrutal">
           <h1 class="quickLinks">QUICK LINKS</h1>
@@ -108,6 +110,14 @@
       </div>
     </div>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
     <script type="module" src="./src/main.js"></script>
     <script src="https://unpkg.com/typed.js@3.0.0/dist/typed.umd.js"></script>
     <link rel="stylesheet" href="./src/style.scss" />
