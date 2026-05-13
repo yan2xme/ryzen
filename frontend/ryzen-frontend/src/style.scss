@@ -53,16 +53,24 @@ h1.tt {
   @include malaki(48pt);
 }
 
-nav.top {
+@mixin top($mT){
   z-index:10;
-  margin-top: -6rem;
+  margin-top:$mT;
   position: fixed;
   display: flex;
   justify-content: center;
 }
 
+nav.top {
+@include top(-5rem);
+}
+
+nav.top2 {
+@include top(-7.6rem);
+}
+
 .inside {
-  margin-top: 8rem;
+  margin-top: 6rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -323,7 +331,7 @@ p.content {
   grid-template-columns: $gridTemplate;
   gap: 50px;
   justify-content: center;
-  align-items: center;
+  align-items: start;
 }
 
 div.layout-grid {
@@ -354,11 +362,11 @@ main {
 }
 
 aside.left {
-  @include aside(-40.85rem, -19.75rem);
+  @include aside(6rem, -19.75rem);
 }
 
 aside.left2 {
-  @include aside(-20.85rem,-2rem);
+  @include aside(6rem,-2rem);
 }
 
 div.leftSide {
@@ -614,7 +622,7 @@ article.inside {
 }
 
 .articleContentSearch {
-      margin-left: 17.5rem;
+  margin-left: 17.5rem;
   position: relative;
   padding-top: 8.75rem;
 }
@@ -702,12 +710,12 @@ aside.right1 {
   overflow: hidden;
   box-sizing: border-box;
   padding: 1rem;
-  margin-top: -40.75rem;
+  margin-top: 6rem;
 }
 
 aside.right2 {
   position: fixed;
-  margin-top: -16.75rem;
+  margin-top: 30.275rem;
   @include aside(v.$ryzenYellow, 21.875rem, 24rem);
 }
 
