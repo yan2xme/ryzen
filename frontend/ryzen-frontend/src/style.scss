@@ -25,9 +25,12 @@
   font-size: 68pt;
 }
 
-p {
+@mixin p{
   font-family: Inconsolata;
   margin: 0;
+}
+p {
+  @include p();
 }
 
 @mixin malaki($fontSize) {
@@ -51,7 +54,7 @@ h1.tt {
 }
 
 nav.top {
-    z-index:110;
+  z-index:10;
   margin-top: -6rem;
   position: fixed;
   display: flex;
@@ -79,7 +82,7 @@ nav.top {
 
 @mixin searchD($width, $pL, $pR) {
   background-color: none;
-  background: url(./assets/search.svg) no-repeat 1.25rem 0.75rem;
+  background: white url(./assets/search.svg) no-repeat 1.25rem 0.75rem;
   width: $width;
   height: 2.875rem;
   border: none;
@@ -96,8 +99,8 @@ nav.top {
 }
 
 input.searchDimension {
-    background-color: white;
-  @include searchD(31rem, 3.375rem, 1.375rem);
+  background-color: white;
+  @include searchD(42rem, 3.375rem, 1.375rem);
 }
 
 input.searchDimension2 {
@@ -351,7 +354,7 @@ main {
 }
 
 aside.left {
-  @include aside(-39.85rem, -19.75rem);
+  @include aside(-40.85rem, -19.75rem);
 }
 
 aside.left2 {
@@ -534,6 +537,15 @@ div.storyContainer {
   display: flex;
 }
 
+.story{
+  width: 6.25rem;
+  height: 6.25rem;
+}
+
+.polShadow{
+  filter: drop-shadow(0px 2px rgba(0, 0, 0, 0.5));
+}
+
 .pol {
   margin-right: 10px;
   display: inline-block;
@@ -560,7 +572,7 @@ div.storyContainer {
 
 .enclosure{
   width: 97%;
-  height: 2.5rem;
+  height: 1.5rem;
 }
 
 .att1 {
@@ -583,7 +595,7 @@ div.storyContainer {
 
 article.outer {
   width: 41.8765rem;
-  height: 29.5rem;
+  height: 30.5rem;
   @include article(1.5rem, 1.5rem, 0.75rem, 0rem, 41.8765rem, 31.25);
 }
 
@@ -690,12 +702,12 @@ aside.right1 {
   overflow: hidden;
   box-sizing: border-box;
   padding: 1rem;
-  margin-top: -39.75rem;
+  margin-top: -40.75rem;
 }
 
 aside.right2 {
   position: fixed;
-  margin-top: -15.1rem;
+  margin-top: -16.75rem;
   @include aside(v.$ryzenYellow, 21.875rem, 24rem);
 }
 
@@ -775,17 +787,46 @@ aside.right2 {
 }
 
 .storyHeader {
-  color: white;
   position: absolute;
   width: 31.25rem;
-  background-image: url(./assets/Rectangle\ 17.svg);
 }
 
-p.storyHeader {
+@mixin storyFont($top,$left){
+  @include p();
+  color: white;
   box-sizing: border-box;
-  padding: 1rem;
-  height: 9rem;
   position: absolute;
+  top: $top;
+  left: $left;
+}
+.storyFont {
+@include storyFont(1.8rem,5rem)
+}
+
+.storyFont2{
+  font-weight: 100;
+  font-size: 9pt;
+  @include storyFont(2.9rem,5rem)
+}
+
+.closeStory{
+  color: white;
+  width: 2.5rem;
+  height: 2.5rem;
+  @include neoBrutal();
+  position: absolute;
+  right: 2rem;
+  top: 1.5rem;
+  background: white url(./assets/X.svg) no-repeat .5rem;
+  cursor: pointer;
+  box-shadow: .6rem .6rem rgba(0, 0, 0, 0.3);
+}
+.storyProfile{
+  left: 2rem;
+  top: 1.5rem;
+  position: absolute;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .storyContentOverlay img {
@@ -795,9 +836,9 @@ p.storyHeader {
   height: 100%;
 }
 
-.overlayEffect {
+@mixin overlayEffect($status){
   position: fixed;
-  display: flex;
+  display: $status;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -807,7 +848,15 @@ p.storyHeader {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2;
+  z-index: 11;
+}
+
+.overlayEffect{
+  @include overlayEffect(none)
+}
+
+.overlayEffect.active{
+  @include overlayEffect(flex)
 }
 
 #typed {

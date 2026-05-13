@@ -44,7 +44,69 @@ let query2 = encodeURIComponent(`*[_type == "stories"] {
 let URL = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query}`;
 let URL2 = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query2}`;
 
-//post fetching
+
+
+
+//story fetching
+fetch(URL2)
+  .then((response) => response.json())
+  .then(({ result }) => {
+    const storyContainer = document.getElementById("storyContainer");
+
+    result.forEach(stories => {
+
+      const div = document.createElement('div');
+
+      let imageRef = stories.storyContent.asset._ref;
+
+      // 2. Split the ID at the dashes to remove "image" and fix the "jpg" at the end
+      let parts = imageRef.split('-'); // breaks it into: ["image", "041d...", "3130x2075", "jpg"]
+
+      // 3. Put it back together into a real web link
+      let realImageUrl2 = `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
+
+      div.className = 'story';
+      div.innerHTML = `<a>
+                <div class="polShadow"><img src="${realImageUrl2}" class="pol"></div>
+              </a>`
+        ;
+
+function triggerStory() {
+  const overlay = document.querySelector(".overlayEffect");
+
+  // Instead of appendChild, we use innerHTML on the overlay itself.
+  // This clears the previous story automatically!
+  overlay.innerHTML = `
+         <div class="storyContentOverlay neoBrutal">
+        <div class="storyHeader">
+          <div class="storyProfile">
+            <img src="./src/assets/Ellipse.png" />
+          </div>
+          <button class="closeStory"></button>
+          <div class="storyFont">Klent Tangaro</div>
+          <div class="storyFont2">${stories.datePosted}</div>
+          <img src="./src/assets/linearGradient.svg" /> <img />
+        </div>
+        <img src="${realImageUrl2}" alt="story" />
+      </div>`;
+
+  overlay.classList.add("active");
+  
+  // Re-attach the close logic to the new 'Back' button
+  overlay.querySelector(".closeStory").onclick = () => overlay.classList.remove("active");
+}
+
+      div.addEventListener("click", triggerStory);
+      storyContainer.appendChild(div);
+    });
+  })
+  .catch((error) => {
+    console.error("The fetch failed entirely:", error);
+  });
+
+
+
+//outer feed post fetching
 fetch(URL)
   .then((response) => response.json())
   .then(({ result }) => {
@@ -65,9 +127,10 @@ fetch(URL)
       div.className = 'post';
       div.innerHTML = `<article class="outer neoBrutal">
           <a href="article.html?slug=${post.slug.current}" class="tt">${post.title}</a>
+          <p>Yapped on: ${post.datePosted}</p>
+                <br>
           <hr class="articleLine" />
-          <br />
-
+          <br>
           <div"> 
           <p class="enclosure">
             ${post.content[0]}
@@ -97,38 +160,9 @@ fetch(URL)
     console.error("The fetch failed entirely:", error);
   });
 
-fetch(URL2)
-  .then((response) => response.json())
-  .then(({ result }) => {
-    const storyContainer = document.getElementById("storyContainer");
-
-    result.forEach(stories => {
-
-      const div = document.createElement('div');
-
-      let imageRef = stories.storyContent.asset._ref;
-
-      // 2. Split the ID at the dashes to remove "image" and fix the "jpg" at the end
-      let parts = imageRef.split('-'); // breaks it into: ["image", "041d...", "3130x2075", "jpg"]
-
-      // 3. Put it back together into a real web link
-      let realImageUrl2 = `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
-
-      div.className = 'story';
-      div.innerHTML = `<a href="index.html?slug=${stories.slug.current}">
-                <img src="${realImageUrl2}" class="pol">
-              </a>`
-        ; storyContainer.appendChild(div);
-    });
-  })
-  .catch((error) => {
-    console.error("The fetch failed entirely:", error);
-  });
 
 
-
-
-
+//inner post feed fetching
 const postInnerContainer = document.getElementById("postInnerFeed");
 if (postInnerContainer) {
   let query3 = encodeURIComponent(`*[_type == "post" && slug.current == "${currentSlug}" ] {
@@ -157,6 +191,10 @@ if (postInnerContainer) {
       div.innerHTML = `<article>
           <h1 class="indicator">BLOG</h1>
           <h1 class="tt">${result.title}</h1>
+                    <p>Yapped on: ${result.datePosted}</p>
+                <br>
+          <hr class="articleLine" />
+          <br>
           <img class="articleImg" src="${realImageUrl3}" />
 
           <footer class="articleInside">
