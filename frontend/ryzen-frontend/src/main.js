@@ -271,68 +271,147 @@ if (postInnerContainer) {
     });
 }
 
+// ─── TURNTABLE STATE ───
+let ttState = {
+  isPlaying: false,
+  progressMs: 0,
+  durationMs: 0,
+  lastSyncTime: 0,
+  isDragging: false,
+  discRotation: 0,
+  lastPointerAngle: 0,
+  liveTimer: null,
+};
 
+const ttEls = {
+  status: document.querySelector('.right1 > p:first-child'),
+  bigText: document.querySelector('.songText'),
+  disc: document.querySelector('.overlay'),
+  albumArt: document.querySelector('.albumArt'),
+  artist: document.querySelector('.artist'),
+  song: document.querySelector('.name'),
+  album: document.querySelector('.albumName'),
+  time: document.querySelector('.time'),
+};
+
+function updateTime(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+  ttEls.time.innerText = `${m}:${s}`;
+}
+
+function getRotation(el) {
+  const tr = window.getComputedStyle(el, null).getPropertyValue('transform');
+  if (tr === 'none') return 0;
+  const vals = tr.split('(')[1].split(')')[0].split(',');
+  return Math.round(Math.atan2(parseFloat(vals[1]), parseFloat(vals[0])) * (180 / Math.PI));
+}
+
+function getAngle(x, y, rect) {
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  return Math.atan2(y - cy, x - cx);
+}
+
+function startLiveTimer() {
+  if (ttState.liveTimer) clearInterval(ttState.liveTimer);
+  ttState.liveTimer = setInterval(() => {
+    if (!ttState.isPlaying || ttState.isDragging) return;
+    const elapsed = Date.now() - ttState.lastSyncTime;
+    let cur = ttState.progressMs + elapsed;
+    if (ttState.durationMs && cur > ttState.durationMs) cur = ttState.durationMs;
+    updateTime(cur);
+  }, 100);
+}
+
+function stopLiveTimer() {
+  if (ttState.liveTimer) clearInterval(ttState.liveTimer);
+}
+
+// ─── SCRATCH / NUDGE ───
+ttEls.disc.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  ttState.isDragging = true;
+  ttEls.disc.setPointerCapture(e.pointerId);
+
+  ttState.discRotation = getRotation(ttEls.disc);
+  ttEls.disc.classList.remove('animate');
+  ttEls.disc.style.transform = `rotate(${ttState.discRotation}deg)`;
+
+  const rect = ttEls.disc.getBoundingClientRect();
+  ttState.lastPointerAngle = getAngle(e.clientX, e.clientY, rect);
+});
+
+ttEls.disc.addEventListener('pointermove', (e) => {
+  if (!ttState.isDragging) return;
+  const rect = ttEls.disc.getBoundingClientRect();
+  const angle = getAngle(e.clientX, e.clientY, rect);
+  let delta = (angle - ttState.lastPointerAngle) * (180 / Math.PI);
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+
+  ttState.discRotation += delta;
+  ttState.lastPointerAngle = angle;
+  ttEls.disc.style.transform = `rotate(${ttState.discRotation}deg)`;
+});
+
+ttEls.disc.addEventListener('pointerup', () => {
+  ttState.isDragging = false;
+  if (!ttState.isPlaying) return;
+
+  const normalized = ((ttState.discRotation % 360) + 360) % 360;
+  const cycle = 10; // MUST match your SCSS: animation: spin 10s
+  ttEls.disc.style.animationDelay = `${-((normalized / 360) * cycle)}s`;
+  ttEls.disc.style.transform = '';
+  ttEls.disc.classList.add('animate');
+});
+
+ttEls.disc.addEventListener('pointercancel', () => {
+  ttEls.disc.dispatchEvent(new Event('pointerup'));
+});
+
+// ─── SYNC ───
 async function syncTurntable() {
   try {
     const res = await fetch('/api/spotify');
-    if (!res.ok) return;
-
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    // Mapping your specific HTML elements
-    const statusLabel = document.querySelector('.right1 p:first-child');
-    const bigDisplayText = document.querySelector('.songText');
-    const recordDisc = document.querySelector('.overlay');
-    const albumArt = document.querySelector('.albumArt');
+    ttEls.song.innerText = data.title || 'Unknown';
+    ttEls.artist.innerText = data.artist || 'Unknown';
+    ttEls.bigText.innerText = (data.artist || 'SILENCE').toUpperCase();
+    if (data.album) ttEls.album.innerText = data.album;
 
-    // Attributes section
-    const artistName = document.querySelector('.artist');
-    const songName = document.querySelector('.name');
-    const albumName = document.querySelector('.albumName');
-    const timeDisplay = document.querySelector('.time');
+    ttEls.albumArt.src = data.albumImageUrl || './src/assets/albumArt.jpg';
 
-    // Update the Text Content
-    songName.innerText = data.title;
-    artistName.innerText = data.artist;
-    bigDisplayText.innerText = data.artist.toUpperCase();
+    ttState.isPlaying = !!data.isPlaying;
+    ttState.progressMs = data.progressMs || 0;
+    ttState.durationMs = data.durationMs || 0;
+    ttState.lastSyncTime = Date.now();
 
-    // Fallback for album name (if your API returns it)
-    if (data.album) albumName.innerText = data.album;
-
-    // Handle empty image safely so it doesn't show a broken image icon
-    if (data.albumImageUrl) {
-      albumArt.src = data.albumImageUrl;
+    if (ttState.isPlaying) {
+      ttEls.status.innerText = 'NOW PLAYING';
+      if (!ttState.isDragging) ttEls.disc.classList.add('animate');
+      updateTime(ttState.progressMs);
+      startLiveTimer();
     } else {
-      albumArt.src = './src/assets/albumArt.jpg'; // Falls back to your default static image
-    }
+      if (!ttState.isDragging) ttEls.disc.classList.remove('animate');
+      stopLiveTimer();
+      ttEls.time.innerText = '--:--';
 
-    if (data.isPlaying) {
-      statusLabel.innerText = "NOW PLAYING";
-      recordDisc.classList.add('animate'); // Start the spin
-
-      // Calculate the "Bump" style timestamp
-      const mins = Math.floor(data.progressMs / 60000);
-      const secs = Math.floor((data.progressMs % 60000) / 1000).toString().padStart(2, '0');
-      timeDisplay.innerText = `${mins}:${secs}`;
-    } else {
-      recordDisc.classList.remove('animate'); // Stop the spin
-      timeDisplay.innerText = "--:--";
-
-      // THE FIX: Check if we actually have a playedAt timestamp
       if (data.playedAt) {
-        const lastPlayed = new Date(data.playedAt);
-        const diff = Math.floor((new Date() - lastPlayed) / 60000);
-        statusLabel.innerText = diff < 60 ? `PLAYED ${diff}M AGO` : `PLAYED ${Math.floor(diff / 60)}H AGO`;
+        const diffMin = Math.floor((Date.now() - new Date(data.playedAt)) / 60000);
+        ttEls.status.innerText = diffMin < 60
+          ? `PLAYED ${diffMin}M AGO`
+          : `PLAYED ${Math.floor(diffMin / 60)}H AGO`;
       } else {
-        // The "Absolute Fallback" state (No History)
-        statusLabel.innerText = "SILENCE";
+        ttEls.status.innerText = 'SILENCE';
       }
     }
   } catch (err) {
-    console.error("Turntable sync error:", err);
+    console.error('Turntable sync error:', err);
   }
 }
 
-// Check for updates every 10 seconds
-setInterval(syncTurntable, 10000);
 syncTurntable();
+setInterval(syncTurntable, 10000);

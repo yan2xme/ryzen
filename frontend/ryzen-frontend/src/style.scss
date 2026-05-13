@@ -564,18 +564,47 @@ div.storyContainer {
 }
 
 .attributes {
-  margin-left: -1rem;
-  padding-left: 1rem;
-  width: 105%;
-  height: 15%;
-  position: relative;
-  z-index: 2;
-  margin-top: -10.9rem;
+  position: absolute;
+  bottom: 0;
+  left: 0rem;          // Break out of parent padding to span full width
+  right: -1rem;
+  height: 3rem;         // FIXED: locked height, no more 1-line collapse
+  margin: 0;
+  padding: 0 1rem;
+  box-sizing: border-box;
   background-color: v.$ryzenYellow;
   font-size: 9pt;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  z-index: 2;
+}
+
+.att1 {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;     // Scrolls when text is too long
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  white-space: nowrap;
+  min-width: 0;         // Critical: lets flex child shrink below content size
+  flex: 1;
+
+  &::-webkit-scrollbar {
+    display: none;      // Hide scrollbar across all browsers
+  }
+
+  p {
+    flex-shrink: 0;
+    margin: 0;
+  }
+}
+
+.time {
+  margin: 0;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 .enclosure{
@@ -753,6 +782,17 @@ aside.right2 {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+.overlay {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  
+  &:active {
+    cursor: grabbing;
   }
 }
 
