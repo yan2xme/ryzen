@@ -1,6 +1,7 @@
 import './style.scss'
 import Typed from 'typed.js';
 import myEllipse from './assets/Ellipse.png';
+import gradient from './assets/linearGradient.svg';
 
 
 function startAnimation() {
@@ -80,12 +81,12 @@ function triggerStory() {
          <div class="storyContentOverlay neoBrutal">
         <div class="storyHeader">
           <div class="storyProfile">
-            <img src="./src/assets/Ellipse.png" />
+            <img src="${myEllipse}" />
           </div>
           <button class="closeStory"></button>
           <div class="storyFont">Klent Tangaro</div>
           <div class="storyFont2">${stories.datePosted}</div>
-          <img src="./src/assets/linearGradient.svg" /> <img />
+          <img src="${gradient}" /> <img />
         </div>
         <img src="${realImageUrl2}" alt="story" />
       </div>`;
