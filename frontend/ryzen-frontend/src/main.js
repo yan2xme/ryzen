@@ -45,9 +45,6 @@ let query2 = encodeURIComponent(`*[_type == "stories"] {
 let URL = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query}`;
 let URL2 = `https://${projectID}.api.sanity.io/v2026-05-10/data/query/${dataset}?query=${query2}`;
 
-
-
-
 //story fetching
 fetch(URL2)
   .then((response) => response.json())
@@ -57,27 +54,31 @@ fetch(URL2)
     result.forEach(stories => {
 
       const div = document.createElement('div');
-
       let imageRef = stories.storyContent.asset._ref;
-
-      // 2. Split the ID at the dashes to remove "image" and fix the "jpg" at the end
-      let parts = imageRef.split('-'); // breaks it into: ["image", "041d...", "3130x2075", "jpg"]
-
-      // 3. Put it back together into a real web link
+      let parts = imageRef.split('-');
       let realImageUrl2 = `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
 
       div.className = 'story';
-      div.innerHTML = `<a>
+      // 1. Fixed the "a a" typo here
+      div.innerHTML = `<a href="/story/${stories.slug.current}" class="story-trigger" data-slug="${stories.slug.current}">
                 <div class="polShadow"><img src="${realImageUrl2}" class="pol"></div>
-              </a>`
-        ;
+              </a>`;
 
-function triggerStory() {
-  const overlay = document.querySelector(".overlayEffect");
+      const trigger = div.querySelector('.story-trigger');
 
-  // Instead of appendChild, we use innerHTML on the overlay itself.
-  // This clears the previous story automatically!
-  overlay.innerHTML = `
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        const clickedSlug = e.currentTarget.getAttribute('data-slug');
+        triggerStory(clickedSlug);
+      });
+
+      function triggerStory(clickedSlug) {
+
+        const newUrl = new window.URL(window.location.href);
+        newUrl.searchParams.set('story', clickedSlug);
+        window.history.pushState({ path: newUrl.href }, '', newUrl.href);
+        const overlay = document.querySelector(".overlayEffect");
+        overlay.innerHTML = `
          <div class="storyContentOverlay neoBrutal">
         <div class="storyHeader">
           <div class="storyProfile">
@@ -91,13 +92,19 @@ function triggerStory() {
         <img src="${realImageUrl2}" alt="story" />
       </div>`;
 
-  overlay.classList.add("active");
-  
-  // Re-attach the close logic to the new 'Back' button
-  overlay.querySelector(".closeStory").onclick = () => overlay.classList.remove("active");
-}
+        overlay.classList.add("active");
 
-      div.addEventListener("click", triggerStory);
+        // 3. MAGIC URL CLEANUP: Remove the parameter when closing
+        overlay.querySelector(".closeStory").onclick = () => {
+          overlay.classList.remove("active");
+
+          const cleanUrl = new window.URL(window.location.href);
+          cleanUrl.searchParams.delete('story');
+          window.history.replaceState({}, '', cleanUrl.href);
+        };
+      }
+
+      // 4. DELETED div.addEventListener("click", triggerStory); from here!
       storyContainer.appendChild(div);
     });
   })
@@ -127,7 +134,7 @@ fetch(URL)
 
       div.className = 'post';
       div.innerHTML = `<article class="outer neoBrutal">
-          <a href="article.html?slug=${post.slug.current}" class="tt">${post.title}</a>
+          <a href="../article.html?slug=${post.slug.current}" class="tt">${post.title}</a>
           <p>Yapped on: ${post.datePosted}</p>
                 <br>
           <hr class="articleLine" />
