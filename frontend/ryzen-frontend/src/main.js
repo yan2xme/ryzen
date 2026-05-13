@@ -271,6 +271,7 @@ if (postInnerContainer) {
     });
 }
 
+
 // ─── TURNTABLE STATE ───
 let ttState = {
   isPlaying: false,
@@ -294,6 +295,69 @@ const ttEls = {
   time: document.querySelector('.time'),
 };
 
+// ─── DYNAMIC AUDIO ───
+const audioPlayer = new Audio();
+audioPlayer.volume = 0.4;
+
+let audioReady = false;
+let currentPreview = null;
+let pendingPlay = false;
+
+// Manual loop for M4A previews
+audioPlayer.addEventListener('ended', () => {
+  if (audioPlayer.src) {
+    audioPlayer.currentTime = 0;
+    audioPlayer.play().catch(() => {});
+  }
+});
+
+function tryPlay() {
+  if (!audioPlayer.src) return;
+  audioPlayer.play().catch(() => {});
+}
+
+function syncAudio(previewUrl, isPlaying) {
+  // Stop
+  if (!isPlaying || !previewUrl) {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+    if (!previewUrl) {
+      audioPlayer.src = '';
+      currentPreview = null;
+    }
+    pendingPlay = false;
+    return;
+  }
+
+  // Load new track
+  if (currentPreview !== previewUrl) {
+    currentPreview = previewUrl;
+    audioPlayer.src = previewUrl;
+  }
+
+  // Play immediately if ready, or queue for first interaction
+  pendingPlay = true;
+  if (audioReady) {
+    tryPlay();
+  }
+}
+
+// ─── AUTO-UNLOCK ───
+function unlockAudio() {
+  if (audioReady) return;
+  audioReady = true;
+  
+  // If a track is queued, play it now
+  if (pendingPlay && audioPlayer.paused) {
+    tryPlay();
+  }
+}
+
+['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(evt => {
+  window.addEventListener(evt, unlockAudio, { once: true, passive: true });
+});
+
+// ─── HELPERS ───
 function updateTime(ms) {
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
@@ -328,7 +392,7 @@ function stopLiveTimer() {
   if (ttState.liveTimer) clearInterval(ttState.liveTimer);
 }
 
-// ─── SCRATCH / NUDGE ───
+// ─── SCRATCH ───
 ttEls.disc.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   ttState.isDragging = true;
@@ -360,7 +424,7 @@ ttEls.disc.addEventListener('pointerup', () => {
   if (!ttState.isPlaying) return;
 
   const normalized = ((ttState.discRotation % 360) + 360) % 360;
-  const cycle = 10; // MUST match your SCSS: animation: spin 10s
+  const cycle = 10;
   ttEls.disc.style.animationDelay = `${-((normalized / 360) * cycle)}s`;
   ttEls.disc.style.transform = '';
   ttEls.disc.classList.add('animate');
@@ -370,7 +434,7 @@ ttEls.disc.addEventListener('pointercancel', () => {
   ttEls.disc.dispatchEvent(new Event('pointerup'));
 });
 
-// ─── SYNC ───
+// ─── SPOTIFY API SYNC ───
 async function syncTurntable() {
   try {
     const res = await fetch('/api/spotify');
@@ -381,7 +445,6 @@ async function syncTurntable() {
     ttEls.artist.innerText = data.artist || 'Unknown';
     ttEls.bigText.innerText = (data.artist || 'SILENCE').toUpperCase();
     if (data.album) ttEls.album.innerText = data.album;
-
     ttEls.albumArt.src = data.albumImageUrl || './src/assets/albumArt.jpg';
 
     ttState.isPlaying = !!data.isPlaying;
@@ -394,10 +457,12 @@ async function syncTurntable() {
       if (!ttState.isDragging) ttEls.disc.classList.add('animate');
       updateTime(ttState.progressMs);
       startLiveTimer();
+      syncAudio(data.previewUrl, true);   // ▶️ FIXED: passes both args
     } else {
       if (!ttState.isDragging) ttEls.disc.classList.remove('animate');
       stopLiveTimer();
       ttEls.time.innerText = '--:--';
+      syncAudio(null, false);            // ⏹ FIXED: passes both args
 
       if (data.playedAt) {
         const diffMin = Math.floor((Date.now() - new Date(data.playedAt)) / 60000);
@@ -410,8 +475,10 @@ async function syncTurntable() {
     }
   } catch (err) {
     console.error('Turntable sync error:', err);
+    syncAudio(null, false);
   }
 }
 
+// ─── BOOT ───
 syncTurntable();
-setInterval(syncTurntable, 10000);
+setInterval(syncTurntable, 5000);

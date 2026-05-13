@@ -1,117 +1,131 @@
-export default async function handler(req, res) {
-  const envKeys = Object.keys(process.env).filter(k => k.includes('SPOTIFY'));
-  console.log("SPOTIFY ENV KEYS FOUND:", envKeys);
-  console.log("ALL ENV KEYS COUNT:", Object.keys(process.env).length);
+const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
+const NOW_PLAYING_ENDPOINT = 'https://api.spotify.com/v1/me/player/currently-playing';
+const RECENTLY_PLAYED_ENDPOINT = 'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 
-  // --- 1. CORS (so your Vite frontend can call this) ---
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-
-  // --- 2. Load & validate env vars INSIDE the handler ---
-  // Do NOT compute these at the module level. If .env is missing at boot,
-  // you encode "undefined:undefined" into the Basic header forever.
+async function getAccessToken() {
   const client_id = process.env.SPOTIFY_CLIENT_ID?.trim();
   const client_secret = process.env.SPOTIFY_CLIENT_SECRET?.trim();
   const refresh_token = process.env.SPOTIFY_REFRESH_TOKEN?.trim();
 
-  console.log("CLIENT ID DETECTED:", client_id ? "YES" : "NO");
-
   if (!client_id || !client_secret || !refresh_token) {
-    console.error("Missing Spotify credentials", {
-      hasId: !!client_id,
-      hasSecret: !!client_secret,
-      hasToken: !!refresh_token,
-    });
-    return res.status(500).json({ error: "Server misconfiguration: missing Spotify credentials" });
+    throw new Error('Missing Spotify credentials');
   }
 
-  // --- 3. Get Access Token ---
   const basic = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-  let tokenData;
+  const res = await fetch(TOKEN_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token }),
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.access_token) {
+    throw new Error(`Token refresh: ${data.error_description || data.error}`);
+  }
+  return data.access_token;
+}
+
+// ─── ITUNES PREVIEW FALLBACK ───
+async function getItunesPreview(artist, title) {
+  try {
+    const q = encodeURIComponent(`${artist} ${title}`);
+    const url = `https://itunes.apple.com/search?term=${q}&media=music&limit=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.results?.[0]?.previewUrl || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ─── DEEZER PREVIEW FALLBACK ───
+async function getDeezerPreview(artist, title) {
+  try {
+    const q = encodeURIComponent(`${artist} ${title}`);
+    const url = `https://api.deezer.com/search?q=${q}&limit=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.data?.[0]?.preview || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function findPreview(artist, title) {
+  // Try iTunes first (higher hit rate for mainstream tracks)
+  let preview = await getItunesPreview(artist, title);
+  if (preview) return preview;
+
+  // Fallback to Deezer
+  preview = await getDeezerPreview(artist, title);
+  return preview;
+}
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${basic}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token,
-      }),
+    const access_token = await getAccessToken();
+
+    // ─── NOW PLAYING ───
+    const npRes = await fetch(NOW_PLAYING_ENDPOINT, {
+      headers: { Authorization: `Bearer ${access_token}` },
     });
 
-    tokenData = await tokenRes.json();
-
-    if (!tokenRes.ok || !tokenData.access_token) {
-      console.error("Spotify token endpoint failed:", tokenData);
-      return res.status(401).json({
-        error: "Spotify authentication failed",
-        details: tokenData.error_description || tokenData.error || "Unknown",
-      });
-    }
-  } catch (err) {
-    console.error("Exception during token fetch:", err);
-    return res.status(500).json({ error: "Failed to reach Spotify token endpoint" });
-  }
-
-  // --- 4. Get Now Playing ---
-  try {
-    const nowPlayingRes = await fetch(
-      "https://api.spotify.com/v1/me/player/currently-playing",
-      { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
-    );
-
-    if (nowPlayingRes.status === 200) {
-      const song = await nowPlayingRes.json();
+    if (npRes.status === 200) {
+      const song = await npRes.json();
       if (song?.item) {
+        const artistStr = song.item.artists.map(a => a.name).join(' ');
+        const previewUrl = await findPreview(artistStr, song.item.name);
+
         return res.status(200).json({
           isPlaying: song.is_playing ?? true,
           title: song.item.name,
-          artist: song.item.artists.map((a) => a.name).join(", "),
-          album: song.item.album.name,    
-          albumImageUrl: song.item.album.images[0]?.url || "",
-          progressMs: song.progress_ms,
-          durationMs: song.item.duration_ms,
+          artist: artistStr,
+          album: song.item.album?.name || '',
+          albumImageUrl: song.item.album?.images?.[0]?.url || '',
+          progressMs: song.progress_ms || 0,
+          durationMs: song.item.duration_ms || 0,
+          previewUrl,
         });
       }
     }
 
-    // --- 5. Fallback: Recently Played ---
-    const recentRes = await fetch(
-      "https://api.spotify.com/v1/me/player/recently-played?limit=1",
-      { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
-    );
+    // ─── RECENTLY PLAYED ───
+    const recentRes = await fetch(RECENTLY_PLAYED_ENDPOINT, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
 
-    if (!recentRes.ok) {
-      throw new Error(`Recently played returned ${recentRes.status}`);
-    }
-
+    if (!recentRes.ok) throw new Error(`Recent ${recentRes.status}`);
     const recent = await recentRes.json();
 
     if (recent?.items?.length > 0) {
       const last = recent.items[0];
+      const artistStr = last.track.artists.map(a => a.name).join(' ');
+      const previewUrl = await findPreview(artistStr, last.track.name);
+
       return res.status(200).json({
         isPlaying: false,
         title: last.track.name,
-        artist: last.track.artists.map((a) => a.name).join(", "),
-        album: song.item.album.name,    
-        albumImageUrl: last.track.album.images[0]?.url || "",
+        artist: artistStr,
+        album: last.track.album?.name || '',
+        albumImageUrl: last.track.album?.images?.[0]?.url || '',
         playedAt: last.played_at,
+        previewUrl,
       });
     }
 
-    // --- 6. Ultimate fallback ---
     return res.status(200).json({
-      isPlaying: false,
-      title: "Silence",
-      artist: "No History Found",
-      albumImageUrl: "",
+      isPlaying: false, title: 'Silence', artist: 'No History',
+      album: '', albumImageUrl: '', previewUrl: null,
     });
+
   } catch (err) {
-    console.error("Player fetch error:", err);
+    console.error('API Error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 }
