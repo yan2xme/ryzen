@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Ryzen</title>
 
     <div class="overlayEffect"></div>
 
     <div class="layout-grid">
       <div class="leftside">
+
         <aside class="neoBrutal left">
           <div class="top">
             <img class="ryzen" src="./src/assets/ryzen.svg" /> <img />
@@ -30,9 +31,41 @@
             </div>
           </div>
         </aside>
+
+        <div class="mobile-quick-links" style="padding: 2rem;">
+        <h1 class="quickLinks" style="padding:0; margin-bottom: 1rem;">QUICK LINKS</h1>
+        <div class="botBot rightSide" style="padding-top: 0;">
+          <h1>Setup</h1>
+          <hr class="selection-highlight" />
+          <h1>Socials</h1>
+          <h1>CV</h1>
+        </div>
+      </div>
+
+        
       </div>
 
       <main>
+        <button
+          id="mobileMenuBtn"
+          class="neoBrutal2"
+          style="
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            padding: 0.5rem 1rem;
+            background: #fff8a4;
+            font-size: 1.5rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 0;
+          "
+        >
+          ☰
+        </button>
+        
         <nav class="top">
           <div class="inside">
             <input

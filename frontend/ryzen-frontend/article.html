@@ -3,14 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ryzen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Ryzen - Article</title>
+    <link rel="stylesheet" href="./src/style.scss" />
+  </head>
+
+  <body>
+    <div class="overlayEffect"></div>
 
     <div class="layout-gridArticle">
-      <div>
+      
+      <div class="leftside">
         <aside class="left2 neoBrutal">
           <div class="top">
-            <img class="ryzen" src="./src/assets/ryzen.svg" /> <img />
+            <img class="ryzen" src="./src/assets/ryzen.svg" alt="Ryzen Logo" />
             <h1 class="logo">hokaido</h1>
           </div>
 
@@ -29,9 +35,39 @@
             </div>
           </div>
         </aside>
+
+        <div class="mobile-quick-links" style="padding: 2rem;">
+          <h1 class="quickLinks" style="padding:0; margin-bottom: 1rem;">QUICK LINKS</h1>
+          <div class="botBot rightSide" style="padding-top: 0;">
+            <h1>Setup</h1>
+            <hr class="selection-highlight" />
+            <h1>Socials</h1>
+            <h1>CV</h1>
+          </div>
+        </div>
       </div>
 
       <main>
+        <button
+          id="mobileMenuBtn"
+          class="neoBrutal2"
+          style="
+            display: none;
+            position: fixed;
+            top: 1.25rem;
+            right: 1.5rem;
+            z-index: 1001;
+            padding: 0.5rem 1rem;
+            background: #fff8a4;
+            font-size: 1.5rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 0;
+          "
+        >
+          ☰
+        </button>
+
         <nav class="top2 articleContentSearch">
           <div class="articleTop">
             <a class="buttonDimension4 neoBrutal2" href="index.html"> Back </a>
@@ -40,12 +76,79 @@
 
         <article class="inside neoBrutal">
           <div id="postInnerFeed"></div>
+
+          <div id="ryzen-comments">
+            <div class="commentSection">
+              <h1 class="commentCount">Yaps & Thoughts</h1>
+
+              <div class="userComment">
+                <div class="userPfp">
+                  <img
+                    src="./src/assets/Ellipse.png"
+                    alt="Profile Picture"
+                    class="pfp"
+                  />
+                  <input
+                    type="text"
+                    id="commenterName"
+                    class="userName"
+                    value="Guest User"
+                    style="
+                      border: none;
+                      background: transparent;
+                      font-family: Inconsolata;
+                      font-size: 16px;
+                      font-weight: bold;
+                      outline: none;
+                      border-bottom: 2px solid black;
+                      width: 150px;
+                    "
+                  />
+                </div>
+
+                <div class="commentFieldOuter">
+                  <textarea
+                    class="commentFieldInner"
+                    autocomplete="on"
+                    placeholder="////Type your comment here////"
+                  ></textarea>
+
+                  <div class="footerCommentField">
+                    <div class="left">
+                      <button
+                        class="buttonDimension6"
+                        type="button"
+                        id="boldBtn"
+                      ></button>
+                      <button
+                        class="buttonDimension7"
+                        type="button"
+                        id="italicBtn"
+                      ></button>
+                    </div>
+                    <div class="right">
+                      <button class="buttonDimension8" type="button">
+                        Cancel
+                      </button>
+                      <button
+                        class="buttonDimension9"
+                        type="button"
+                        id="postCommentBtn"
+                      >
+                        Post
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr class="commentLine" />
+            </div>
+          </div>
         </article>
       </main>
     </div>
 
     <script type="module" src="./src/main.js"></script>
     <script src="https://unpkg.com/typed.js@3.0.0/dist/typed.umd.js"></script>
-    <link rel="stylesheet" href="./src/style.scss" />
-  </head>
+  </body>
 </html>

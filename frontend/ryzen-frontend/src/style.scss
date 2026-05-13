@@ -15,6 +15,11 @@
   src: url(./assets/Jaro-Regular-VariableFont_opsz.ttf);
 }
 
+/* ─── DESKTOP: HIDE THE MOBILE CLONE ─── */
+.mobile-quick-links {
+  display: none !important;
+}
+
 .songText {
   color: v.$greyText;
   display: block;
@@ -176,7 +181,7 @@ button.buttonDimension3 {
     white,
     1rem,
     0.8rem,
-    2.75rem,
+    5.75rem,    /* FIXED: was 2.75rem — mas maliit pa sa padding-left! */
     2.875rem,
     3rem,
     0rem,
@@ -206,7 +211,7 @@ button.buttonDimension5 {
     7rem,
     2rem,
     1rem,
-    2rem,
+    -1rem,
     url(./assets/Share.svg) no-repeat
   );
 }
@@ -300,6 +305,19 @@ button.buttonDimension12 {
     0rem,
     null
   );
+}
+
+.reply-container {
+  margin-left: 2rem;       // Indent the reply
+  border-left: 2px solid black; // The vertical line from your reference
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+}
+
+.nested-input-box {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  // Use your existing .userComment styles here
 }
 
 .reply {
@@ -726,6 +744,14 @@ footer.articleInside2 {
 }
 .butts2 {
   margin-left: 50%;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.butts2 button {
+  flex-shrink: 0;
 }
 
 .pfp {
@@ -927,4 +953,319 @@ aside.right2 {
   font-weight: bold;
   font-size: 16pt;
   color: black;
+}
+
+/* ─────────────────────────────────────────
+   ARTICLE STAR & COMMENT — NEOBRUTALIST HOVER
+   (inner + outer article only)
+   ───────────────────────────────────────── */
+button.buttonDimension2,
+button.buttonDimension3 {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    outline-style: solid;
+    outline-color: black;
+    outline-width: 0.2rem;
+    outline-offset: 0;
+    transform: translateY(-3px);
+    box-shadow: 4px 4px 0px black;
+    color: black;
+    /* white bg + black SVG icon preserved, no invert */
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 1px 1px 0px black;
+  }
+}
+
+/* ─────────────────────────────────────────
+   STAR BUTTON — BLACK INDICATOR ON CLICK
+   ───────────────────────────────────────── */
+button.buttonDimension2,
+button.buttonDimension10 {
+  &.is-liked {
+    filter: invert(1);
+    animation: starPop 0.3s ease;
+  }
+}
+
+@keyframes starPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ─────────────────────────────────────────
+   COMMENT FOOTER — UNIFORM BUTTON SIZES
+   ───────────────────────────────────────── */
+.commentFooter {
+  button.buttonDimension2,
+  button.buttonDimension3,
+  button.buttonDimension12 {
+    width: 5.75rem;
+    height: 2.875rem;
+    box-sizing: border-box;
+  }
+
+  /* Reply button has no icon, so center the text */
+  button.buttonDimension12 {
+    padding-left: 0;
+    text-align: center;
+  }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE RESPONSIVENESS (PHONES & TABLETS)
+   ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Prevent horizontal scrolling and zoom issues */
+  body, html { 
+    overflow-x: hidden; 
+    width: 100%; 
+  }
+
+  /* Hamburger Button */
+  #mobileMenuBtn { 
+    display: block !important; 
+    position: fixed; 
+    top: 1.25rem; 
+    right: 1.5rem; 
+    z-index: 1001; 
+  }
+
+  /* ─── FIX THE TOP SEARCH NAV ─── */
+  nav.top, nav.top2 {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    margin: 0;
+    padding: 1rem 1.5rem; 
+    width: 100%; 
+    background: white;
+    z-index: 998; 
+    box-sizing: border-box;
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-start;
+    border-bottom: 4px solid black;
+  }
+  
+  .inside { 
+    margin: 0; 
+    width: calc(100% - 4rem); /* Leaves perfect space for the hamburger */
+    height: auto; 
+  }
+  
+  input.searchDimension { 
+    width: 100%; 
+    padding-left: 3rem; /* Keeps the search icon visible */
+    padding-right: 1rem; 
+    font-size: 16px; 
+  }
+
+  /* ─── GRID & MAIN FEED ─── */
+  div.layout-grid, 
+  div.layout-gridArticle {
+    display: flex; 
+    flex-direction: column; 
+    width: 100%;
+    padding: 6rem 1.5rem 7rem 1.5rem; /* Room for Top Nav and Bottom Player */
+    box-sizing: border-box;
+    min-height: 100vh; 
+    overflow-x: hidden;
+  }
+  
+  main {
+    width: 100%; 
+    margin: 0; 
+    display: flex; 
+    flex-direction: column;
+    align-items: flex-start; /* FIXED: This stops the left-shifting clip bug! */
+    gap: 1.5rem;
+  }
+
+  /* ─── AESTHETIC POLISH (TYPOGRAPHY & IMAGES) ─── */
+  
+  /* Shrink the massive desktop titles for phone screens */
+  h1.tt {
+    font-size: 32pt !important; 
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Make the card padding uniform but slightly tighter for small screens */
+  article.outer, 
+  article.inside { 
+    padding: 1.25rem !important; 
+  }
+
+  /* Force the image to span perfectly inside the card */
+  .articleImg {
+    width: 100% !important; /* No more 97% weirdness */
+    height: 220px !important; /* Perfect cinematic landscape crop */
+    object-fit: cover;
+    margin: 1rem 0 0.5rem 0 !important; /* Breathing room top and bottom */
+    padding: 0 !important; /* Kills the weird desktop padding */
+  }
+
+  /* Let the preview text breathe */
+  .enclosure {
+    width: 100% !important;
+    height: auto !important;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  /* Clean up the footer alignment */
+  footer { 
+    padding-top: 0.5rem !important; 
+    align-items: center;
+  }
+
+  /* ─── CARDS & MARGINS ─── */
+  .post { width: 100%; }
+  
+  header.stories, 
+  article.outer, 
+  article.end, 
+  article.inside {
+    width: 100% !important; /* Let the container padding handle the shadow */
+    margin: 0 !important;
+    height: auto !important; 
+    box-sizing: border-box;
+  }
+  
+  article.outer, 
+  article.inside { padding: 1.5rem; }
+
+  /* Card Footers (Fixing squished buttons) */
+  footer { width: 100%; flex-wrap: wrap; gap: 1rem; padding: 1rem 0 0 0; }
+  .butts, .butts2 { margin: 0 !important; width: 100%; justify-content: flex-start; }
+
+  /* ─── STORIES SWIPE ─── */
+  div.storyContainer { width: 100%; overflow-x: auto; padding-bottom: 1rem; }
+  .leftArrow, .rightArrow { display: none; }
+  div.stories-grid { display: block; }
+
+  /* ─── DRAWER (REDDIT SIDEBAR) ─── */
+  .leftside {
+    position: fixed; top: 0; left: -100%; width: 80vw; height: 100vh;
+    background-color: v.$ryzenYellow; z-index: 1000;
+    transition: left 0.3s ease-in-out; border-right: 4px solid black;
+    overflow-y: auto; padding: 1rem; box-sizing: border-box;
+    
+    &.active { left: 0; }
+    aside.left, aside.left2 { position: static; width: 100%; height: auto; margin: 0; box-shadow: none; outline: none; }
+  }
+  
+  aside.right2 { display: none !important; }
+  .mobile-quick-links { display: block; }
+
+  /* ─── INSIDE YOUR @media (max-width: 900px) ─── */
+  aside.right2 { 
+    display: none !important; /* Kills the desktop box on mobile */
+  }
+  
+  .mobile-quick-links { 
+    display: block !important; /* Revives the clone ONLY on mobile */
+  }
+
+  /* ─── SMOL PLAYER (MUSIC FOOTER FIXED) ─── */
+  aside.right1 {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 5.5rem;
+    margin: 0 !important; padding: 0 1.5rem; background-color: white;
+    z-index: 999; border-top: 4px solid black;
+    display: flex; flex-direction: row; align-items: center; box-sizing: border-box;
+    
+    canvas { display: none !important; }
+    .songText, > p:first-child { display: none; }
+
+    /* Forcibly center the album art inside the disc */
+    .overlay {
+      position: relative !important; width: 3.5rem !important; height: 3.5rem !important;
+      margin: 0 !important; flex-shrink: 0;
+    }
+    .overlay2 {
+      position: absolute !important; top: 50% !important; left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      margin: 0 !important; width: 2.5rem !important; height: 2.5rem !important;
+    }
+
+    .attributes {
+      position: relative !important; flex: 1; height: 100% !important;
+      background: transparent !important; padding: 0 0 0 1rem !important;
+      margin: 0 !important; display: flex; align-items: center; bottom: auto !important;
+    }
+    .time { display: none; }
+  }
+  /* ─── FIX THE COMMENT SECTION FOR MOBILE ─── */
+  .commentSection {
+    width: 100% !important;
+    padding: 1rem 0 !important; /* Kills the massive 4rem desktop padding */
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .commentFieldOuter {
+    width: 100% !important;
+    padding: 1rem !important;
+    box-sizing: border-box;
+  }
+
+  .commentFieldInner {
+    width: 100% !important; /* Forces the textarea to fit */
+    box-sizing: border-box;
+  }
+
+  .commentLine {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  /* Shrink the nesting indent so replies don't fall off the right edge */
+  .replies-section, 
+  .reply-container {
+    margin-left: 1rem !important; 
+    padding-left: 0.5rem !important;
+  }
+
+  /* Wrap the footer buttons if the screen gets too tight */
+  .footerCommentField {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .commentFooter {
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+  /* ─── FIX THE STORY OVERLAY MODAL ─── */
+  .overlayEffect {
+    z-index: 9999 !important; /* Forces the black background ABOVE the nav and player */
+    padding: 1.5rem; /* Gives it nice breathing room from the screen edges */
+    box-sizing: border-box;
+  }
+
+  .storyContentOverlay {
+    width: 100% !important; /* Squish it to fit the phone screen */
+    height: 85vh !important; /* Make it tall, but don't bleed off the top/bottom */
+    position: relative;
+    overflow: hidden; /* Keeps the image from breaking out of the brutalist box */
+  }
+
+  .storyHeader {
+    width: 100% !important;
+  }
+
+  /* Adjust the header text and close button so they don't get cut off */
+  .closeStory {
+    right: 1rem !important; 
+    top: 1rem !important;
+  }
+
+  .storyFont, .storyFont2 {
+    left: 5rem !important; /* Pulls the text inward so it doesn't overlap the X */
+  }
 }
