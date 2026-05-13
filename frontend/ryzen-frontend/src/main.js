@@ -158,7 +158,7 @@ if (postInnerContainer) {
 
           <footer class="articleInside">
             <img
-              src="./src/assets/Ellipse.png"
+              src="${myEllipse}"
               alt="Profile Picture"
               class="pfp"
             />
