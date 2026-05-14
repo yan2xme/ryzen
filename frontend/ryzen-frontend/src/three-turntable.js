@@ -4,6 +4,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 let scene, camera, renderer;
 let tonearmPivot, tonearmOffsetGroup, tonearmGroup;
 let notes = [];
+let tonearmTextures = [];
+let y2kNoteMaterial;
+let animationFrameId;
 
 let isPlaying = false;
 let progress = 0;
@@ -11,14 +14,9 @@ let duration = 1;
 let tonearmLoaded = false;
 const frustumSize = 2.2;
 
-// ─────────────────────────────────────────
-// YOUR FINAL CALIBRATION CONFIG
-// ─────────────────────────────────────────
+// ─── UNCHANGED CALIBRATION CONFIG ───
 const config = {
-  DEBUG_MODE: false, 
-  
   noteScale: 0.08, 
-  
   scale: 0.22,
   pivotX: 0.88,
   pivotY: 0.89,
@@ -27,10 +25,25 @@ const config = {
   modelRotX: 1.50840734641021,
   modelRotY: -2.94,
   modelRotZ: 0.01,
-  
   restAngle: -1.20159265358979,
   playAngle: -0.431592653589793
 };
+
+function balloonEnvelope(t) {
+  if (t < 0.1) {
+    const x = t / 0.1;
+    return 1 - Math.pow(1 - x, 3);
+  } else if (t < 0.75) {
+    return 1.0;
+  } else {
+    const x = (t - 0.75) / 0.25;
+    return 1 - x * x;
+  }
+}
+
+function smoothstep(t) {
+  return t * t * (3 - 2 * t);
+}
 
 export function initThreeTurntable(container) {
   const rect = container.getBoundingClientRect();
@@ -54,6 +67,9 @@ export function initThreeTurntable(container) {
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize(width, height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true; 
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+  
   renderer.domElement.style.position = 'absolute';
   renderer.domElement.style.top = '0';
   renderer.domElement.style.left = '0';
@@ -64,44 +80,94 @@ export function initThreeTurntable(container) {
 
   container.appendChild(renderer.domElement);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 2.0));
-  const frontLight = new THREE.DirectionalLight(0xffffff, 2.0);
-  frontLight.position.set(0, 0, 5);
+  // ─── LIGHTING: PERFECT NARROW TONEARM SHADOW ───
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); 
+  scene.add(ambientLight);
+
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe0e0e0, 1.2); 
+  scene.add(hemiLight);
+
+  // Positioned "above" the tonearm so it casts a shadow straight down onto the disc plane
+  const frontLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  frontLight.position.set(0, .5, 3.0); 
+  
+  frontLight.castShadow = true;
+  
+  // Tight shadow camera frustum
+  frontLight.shadow.camera.left = -2;
+  frontLight.shadow.camera.right = 2;
+  frontLight.shadow.camera.top = 2;
+  frontLight.shadow.camera.bottom = -2;
+  frontLight.shadow.camera.near = 0.1;
+  frontLight.shadow.camera.far = 20;
+  
+  frontLight.shadow.mapSize.width = 1024;
+  frontLight.shadow.mapSize.height = 1024;
+  frontLight.shadow.bias = -0.002;
+  frontLight.shadow.radius = 4; // Soft edges for realistic hovering look
+  
   scene.add(frontLight);
+
+  // Shadow catching plane
+  const shadowPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.ShadowMaterial({ opacity: 0.25, depthWrite: false }) // Visible but faint
+  );
+  shadowPlane.position.set(0, 0, -0.02); // Slightly behind the disc
+  shadowPlane.receiveShadow = true;
+  scene.add(shadowPlane);
+
+  // ─── OPTIMIZED TEXTURE LOADING ───
+  const texManager = new THREE.LoadingManager();
+  texManager.onError = (url) => console.warn(`[Ryzen] Texture failed: ${url}`);
+  const texLoader = new THREE.TextureLoader(texManager);
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+  function loadTex(path, srgb = false) {
+    const tex = texLoader.load(path);
+    if (srgb) tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = Math.min(maxAniso, 8);
+    tonearmTextures.push(tex);
+    return tex;
+  }
+
+  const albedoMap = loadTex('/models/Tonearm_albedo.png', true);
+  const metallicMap = loadTex('/models/Tonearm_metallic.png');
+  const roughnessMap = loadTex('/models/Tonearm_roughness.png');
+  const normalMap = loadTex('/models/Tonearm_normal.png');
+  const aoMap = loadTex('/models/Tonearm_AO.png');
 
   const loader = new GLTFLoader();
 
-  // ─── LOAD TONEARM ───
   loader.load('/models/tonearm.glb', (gltf) => {
     tonearmGroup = gltf.scene;
 
     tonearmGroup.traverse((child) => {
       if (child.isMesh) {
+        child.castShadow = true; // CRITICAL: Tonearm must cast
+        child.receiveShadow = true;
+
         if (child.material) {
           if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
           else child.material.dispose();
         }
+        
         child.material = new THREE.MeshStandardMaterial({
-          color: 0xd4d4d4,
-          metalness: 0.7,
-          roughness: 0.25,
+          map: albedoMap,
+          metalnessMap: metallicMap,
+          roughnessMap: roughnessMap,
+          normalMap: normalMap,
+          aoMap: aoMap,
+          metalness: 0.05,
+          roughness: 0.95,
+          emissive: 0x111111
         });
       }
     });
 
     tonearmPivot = new THREE.Group();
-    tonearmPivot.position.set(config.pivotX, config.pivotY, 0.1);
+    tonearmPivot.position.set(config.pivotX, config.pivotY, 0.1); // Tonearm is in front
     tonearmPivot.rotation.z = config.restAngle; 
-
-    if (config.DEBUG_MODE) {
-      const dot = new THREE.Mesh(
-        new THREE.SphereGeometry(0.05, 16, 16),
-        new THREE.MeshBasicMaterial({ color: 0xff0000, depthTest: false })
-      );
-      dot.renderOrder = 999; 
-      tonearmPivot.add(dot);
-      createCalibrationUI();
-    }
 
     tonearmOffsetGroup = new THREE.Group();
     tonearmOffsetGroup.position.set(config.offsetX, config.offsetY, 0);
@@ -115,6 +181,17 @@ export function initThreeTurntable(container) {
     tonearmLoaded = true;
 
   }, undefined, (err) => console.error('[Ryzen] Tonearm GLB error:', err));
+
+  // ─── SOFT PASTEL YELLOW Y2K MATERIAL ───
+  y2kNoteMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xFFEF5E,        // Signature pastel Y2K yellow
+    emissive: 0x332B00,     // Warm internal glow
+    metalness: 0.0,          
+    roughness: 0.6,          
+    clearcoat: 0.4,          
+    clearcoatRoughness: 0.5, 
+    side: THREE.DoubleSide   
+  });
 
   createMusicNotes();
   animate();
@@ -133,45 +210,44 @@ export function initThreeTurntable(container) {
   });
 }
 
-// ─── LOAD FOIL BALLOONS ───
 function createMusicNotes() {
   const loader = new GLTFLoader();
-  
-  const foilMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffeb3b,         
-    metalness: 0.3,          
-    roughness: 0.4,         
-    clearcoat: 1.0,          
-    clearcoatRoughness: 0.2,
-    side: THREE.DoubleSide   
-  });
 
   loader.load('/models/music.glb', (gltf) => {
     const baseNote = gltf.scene;
 
     baseNote.traverse((child) => {
-      if (child.isMesh) {
-        if (child.material) child.material.dispose();
-        child.material = foilMaterial;
+      if (child.isMesh && child.material) {
+        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+        else child.material.dispose();
       }
     });
 
     for (let i = 0; i < 6; i++) {
       const note = baseNote.clone();
+      
+      note.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true; 
+          child.material = y2kNoteMaterial;
+        }
+      });
+
       note.scale.set(0, 0, 0); 
       
-      // ✨ FIXED: Centered around the disc!
-      // X stays between -0.5 and 0.5 (center of screen)
       const randomX = -0.5 + Math.random() * 1.0; 
-      // Y stays between -0.4 and 0.1 (bottom half of the disc)
-      const randomY = -0.4 + Math.random() * 0.5;
-
-      note.position.set(randomX, randomY, 0.05);
+      const randomY = -0.3 + Math.random() * 0.4;
 
       note.userData = { 
         baseY: randomY, 
         baseX: randomX, 
-        offset: i * 0.45, 
+        phaseOffset: i * 0.45, 
+        buoyancy: 0.6 + Math.random() * 0.2,
+        wobbleFreq: 1.2 + Math.random() * 0.8,      
+        wobbleAmp: 0.05 + Math.random() * 0.08,      
+        spinSpeed: 0.4 + Math.random() * 0.6,        
+        sizeVariance: 0.85 + Math.random() * 0.3,    
+        speed: 0.25 + Math.random() * 0.1,            
         playScale: 0 
       };
       
@@ -182,46 +258,47 @@ function createMusicNotes() {
 }
 
 function animate() {
-  requestAnimationFrame(animate);
-  const realTime = Date.now() * 0.001;
+  animationFrameId = requestAnimationFrame(animate);
+  const realTime = Date.now() * 0.001; 
 
-  // ─── BINARY TONEARM MOVEMENT ───
   if (tonearmPivot && tonearmLoaded) {
     const targetZ = isPlaying ? config.playAngle : config.restAngle;
-    tonearmPivot.rotation.z += (targetZ - tonearmPivot.rotation.z) * 0.05;
+    tonearmPivot.rotation.z += (targetZ - tonearmPivot.rotation.z) * 0.04;
   }
 
-  // ─── BUMP APP BALLOON EFFECT ───
-  const fps = 24; 
-  const steppedTime = Math.floor(realTime * fps) / fps;
-
   notes.forEach((note) => {
-    const life = (steppedTime * 0.35 + note.userData.offset) % 1.0;
+    const ud = note.userData;
+    const life = (realTime * ud.speed + ud.phaseOffset) % 1.0;
 
     if (!isPlaying) {
-      note.userData.playScale = THREE.MathUtils.lerp(note.userData.playScale, 0, 0.1);
+      ud.playScale = THREE.MathUtils.lerp(ud.playScale, 0, 0.08);
     } else {
-      note.userData.playScale = THREE.MathUtils.lerp(note.userData.playScale, 1, 0.1);
+      ud.playScale = THREE.MathUtils.lerp(ud.playScale, 1, 0.08);
     }
 
-    const popScale = Math.sin(life * Math.PI) * note.userData.playScale * config.noteScale;
+    const envelope = balloonEnvelope(life);
+    const popScale = envelope * ud.playScale * config.noteScale * ud.sizeVariance;
     
     note.scale.set(popScale, popScale, popScale);
     note.visible = popScale > 0.001;
 
-    // ✨ FIXED: Float height reduced to 0.8 so they don't clip at the top
-    note.position.y = note.userData.baseY + (life * 0.8);
-    // Drift gently left and right
-    note.position.x = note.userData.baseX + Math.sin(life * Math.PI * 2) * 0.2;
+    const riseEased = smoothstep(life);
+    note.position.y = ud.baseY + riseEased * 0.8 * ud.buoyancy;
+
+    const bob = Math.sin(realTime * 2.0 + ud.phaseOffset) * 0.02 * ud.playScale;
+    note.position.y += bob;
+
+    const wobbleEnvelope = Math.sin(life * Math.PI);
+    note.position.x = ud.baseX + Math.sin(life * Math.PI * ud.wobbleFreq + ud.phaseOffset) * ud.wobbleAmp * wobbleEnvelope;
     
-    note.rotation.y = steppedTime * 2.0 + note.userData.offset;
-    note.rotation.z = Math.sin(steppedTime * 3 + note.userData.offset) * 0.3;
+    note.rotation.y = Math.sin(realTime * ud.spinSpeed + ud.phaseOffset) * 0.5;
+    note.rotation.z = Math.cos(realTime * ud.spinSpeed * 0.7 + ud.phaseOffset * 1.3) * 0.15;
+    note.rotation.x = Math.sin(realTime * ud.spinSpeed * 0.5 + ud.phaseOffset * 0.7) * 0.1;
   });
 
   renderer.render(scene, camera);
 }
 
-// Update Playback from main.js
 export function updatePlayback(playing, progressMs, durationMs) {
   isPlaying = playing;
   progress = progressMs || 0;
@@ -229,6 +306,35 @@ export function updatePlayback(playing, progressMs, durationMs) {
 }
 
 export function cleanup() {
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+  tonearmTextures.forEach(tex => tex.dispose());
+  tonearmTextures = [];
+
+  if (y2kNoteMaterial) y2kNoteMaterial.dispose();
+
+  notes.forEach(note => {
+    note.traverse(child => {
+      if (child.isMesh) {
+        child.geometry?.dispose();
+      }
+    });
+    scene.remove(note);
+  });
+  notes = [];
+
+  if (tonearmGroup) {
+    tonearmGroup.traverse(child => {
+      if (child.isMesh) {
+        child.geometry?.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material.dispose();
+        }
+      }
+    });
+  }
+
   if (renderer) {
     renderer.dispose();
     renderer.domElement.remove();
