@@ -78,7 +78,7 @@ function timeAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
   const seconds = Math.floor((now - date) / 1000);
-  
+
   if (seconds < 60) return 'just now';
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -88,7 +88,7 @@ function timeAgo(dateString) {
   if (days < 30) return `${days}d ago`;
   const months = Math.floor(days / 30);
   if (months < 12) return `${months}mo ago`;
-  
+
   // Fallback to MM-DD-YYYY for old dates
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
@@ -183,7 +183,7 @@ function initHomepage() {
 
   if (leftArrow && rightArrow && storyContainer) {
     // Scroll by roughly 2.5 stories at a time
-    const scrollAmount = 250; 
+    const scrollAmount = 250;
 
     leftArrow.addEventListener('click', () => {
       storyContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
@@ -229,14 +229,15 @@ function initHomepage() {
               <p class="enclosure">${escapeHtml(preview)}</p>
             </div>
             <img class="articleImg" src="${imageUrl}" alt="${escapeHtml(post.title)}" />
-            <footer>
+       <footer>
               <img src="${myEllipse}" alt="Profile Picture" class="pfp" />
               <p class="footerText">Klent Tangaro</p>
               <div class="butts">
                 <button class="buttonDimension2 like-outer" type="button">${formatNumber(likes)}</button>
-                <button class="buttonDimension3" type="button">${comments}</button>
+                <button class="buttonDimension3" type="button" onclick="window.location.href='../article.html?slug=${slug}#ryzen-comments'">${comments}</button>
               </div>
             </footer>
+
           </article><br><br>`;
         feedContainer.appendChild(div);
 
@@ -314,15 +315,15 @@ function openStoryOverlay(story, imageUrl) {
   // ─── DATE FORMAT FIX ───
   // Convert the ugly ISO string into a clean, readable format
   const rawDate = new Date(story.datePosted);
-  const formattedDate = isNaN(rawDate) 
-    ? story.datePosted 
-    : rawDate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric', 
-        hour: 'numeric', 
-        minute: '2-digit' 
-      });
+  const formattedDate = isNaN(rawDate)
+    ? story.datePosted
+    : rawDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
 
   overlay.innerHTML = `
     <div class="storyContentOverlay neoBrutal">
@@ -644,13 +645,13 @@ function initTurntable() {
   audioPlayer.addEventListener('ended', () => {
     if (audioPlayer.src) {
       audioPlayer.currentTime = 0;
-      audioPlayer.play().catch(() => {});
+      audioPlayer.play().catch(() => { });
     }
   });
 
   function tryPlay() {
     if (!audioPlayer.src) return;
-    audioPlayer.play().catch(() => {});
+    audioPlayer.play().catch(() => { });
   }
 
   function syncAudio(previewUrl, isPlaying) {
@@ -856,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (menuBtn && sidebar) {
     menuBtn.addEventListener('click', () => {
       // Toggles the sliding animation we set in SCSS
-      sidebar.classList.toggle('active'); 
+      sidebar.classList.toggle('active');
     });
 
     // Close the sidebar if they click outside of it
