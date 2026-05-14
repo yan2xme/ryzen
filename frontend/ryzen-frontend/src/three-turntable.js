@@ -11,19 +11,25 @@ let duration = 1;
 let tonearmLoaded = false;
 const frustumSize = 2.2;
 
-// EXACT values from your final successful calibration!
+// ─────────────────────────────────────────
+// YOUR FINAL CALIBRATION CONFIG
+// ─────────────────────────────────────────
 const config = {
-  scale: 0.40,
-  pivotX: -0.80,         // The screen position of the base (Red Dot)
-  pivotY: 0.65,          // The screen position of the base (Red Dot)
-  offsetX: -1.16,        // Shifts the 3D model to align perfectly with the pivot
-  offsetY: 1.49,         // Shifts the 3D model to align perfectly with the pivot
-  modelRotX: 1.66,
+  DEBUG_MODE: false, 
+  
+  noteScale: 0.08, 
+  
+  scale: 0.22,
+  pivotX: 0.88,
+  pivotY: 0.89,
+  offsetX: -0.11,
+  offsetY: 0.02,
+  modelRotX: 1.50840734641021,
   modelRotY: -2.94,
   modelRotZ: 0.01,
-  restAngle: 3.01,       // Stop state angle
-  playAngleStart: 2.16,  // Play state starting angle
-  playAngleEnd: 1.90     // Slowly tracks slightly inward as the song plays
+  
+  restAngle: -1.20159265358979,
+  playAngle: -0.431592653589793
 };
 
 export function initThreeTurntable(container) {
@@ -58,7 +64,6 @@ export function initThreeTurntable(container) {
 
   container.appendChild(renderer.domElement);
 
-  // Strong lighting to make the metallic material look good
   scene.add(new THREE.AmbientLight(0xffffff, 2.0));
   const frontLight = new THREE.DirectionalLight(0xffffff, 2.0);
   frontLight.position.set(0, 0, 5);
@@ -66,6 +71,7 @@ export function initThreeTurntable(container) {
 
   const loader = new GLTFLoader();
 
+  // ─── LOAD TONEARM ───
   loader.load('/models/tonearm.glb', (gltf) => {
     tonearmGroup = gltf.scene;
 
@@ -83,17 +89,24 @@ export function initThreeTurntable(container) {
       }
     });
 
-    // 1. The Main Pivot (This stays permanently locked in place)
     tonearmPivot = new THREE.Group();
     tonearmPivot.position.set(config.pivotX, config.pivotY, 0.1);
     tonearmPivot.rotation.z = config.restAngle; 
 
-    // 2. The Offset Group (This permanently shifts the model to center on the pivot)
+    if (config.DEBUG_MODE) {
+      const dot = new THREE.Mesh(
+        new THREE.SphereGeometry(0.05, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xff0000, depthTest: false })
+      );
+      dot.renderOrder = 999; 
+      tonearmPivot.add(dot);
+      createCalibrationUI();
+    }
+
     tonearmOffsetGroup = new THREE.Group();
     tonearmOffsetGroup.position.set(config.offsetX, config.offsetY, 0);
     tonearmPivot.add(tonearmOffsetGroup);
 
-    // 3. The 3D Model (Scaled and rotated to look correct)
     tonearmGroup.scale.setScalar(config.scale);
     tonearmGroup.rotation.set(config.modelRotX, config.modelRotY, config.modelRotZ);
     tonearmOffsetGroup.add(tonearmGroup);
@@ -101,10 +114,7 @@ export function initThreeTurntable(container) {
     scene.add(tonearmPivot);
     tonearmLoaded = true;
 
-  }, undefined, (err) => {
-    console.error('GLB failed:', err);
-    createFallbackTonearm();
-  });
+  }, undefined, (err) => console.error('[Ryzen] Tonearm GLB error:', err));
 
   createMusicNotes();
   animate();
@@ -123,77 +133,95 @@ export function initThreeTurntable(container) {
   });
 }
 
-function createFallbackTonearm() {
-  const mat = new THREE.MeshStandardMaterial({ color: 0xd4d4d4, metalness: 0.7, roughness: 0.25 });
-  const group = new THREE.Group();
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.05, 24), mat);
-  base.rotation.x = Math.PI / 2; 
-  group.add(base);
-  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.03, 1.0, 0.02), mat);
-  arm.position.y = -0.5;
-  group.add(arm);
-  
-  tonearmGroup = group;
-  tonearmPivot = new THREE.Group();
-  tonearmPivot.add(tonearmGroup);
-  
-  tonearmPivot.position.set(config.pivotX, config.pivotY, 0.1);
-  tonearmPivot.rotation.z = config.restAngle;
-  
-  scene.add(tonearmPivot);
-  tonearmLoaded = true;
-}
-
+// ─── LOAD FOIL BALLOONS ───
 function createMusicNotes() {
-  const mat = new THREE.MeshPhysicalMaterial({ color: 0x4CAF50 });
-  for (let i = 0; i < 3; i++) {
-    const g = new THREE.Group();
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), mat);
-    head.scale.set(1.2, 0.8, 0.5);
-    g.add(head);
-    const stem = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.14, 0.01), mat);
-    stem.position.set(0.045, 0.07, 0);
-    g.add(stem);
-    g.position.set(-0.3 + i * 0.15, 0.1 + i * 0.15, 0.05);
-    g.visible = false;
-    g.userData = { baseY: g.position.y, baseX: g.position.x, offset: i * 1.2 };
-    scene.add(g);
-    notes.push(g);
-  }
+  const loader = new GLTFLoader();
+  
+  const foilMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xffeb3b,         
+    metalness: 0.3,          
+    roughness: 0.4,         
+    clearcoat: 1.0,          
+    clearcoatRoughness: 0.2,
+    side: THREE.DoubleSide   
+  });
+
+  loader.load('/models/music.glb', (gltf) => {
+    const baseNote = gltf.scene;
+
+    baseNote.traverse((child) => {
+      if (child.isMesh) {
+        if (child.material) child.material.dispose();
+        child.material = foilMaterial;
+      }
+    });
+
+    for (let i = 0; i < 6; i++) {
+      const note = baseNote.clone();
+      note.scale.set(0, 0, 0); 
+      
+      // ✨ FIXED: Centered around the disc!
+      // X stays between -0.5 and 0.5 (center of screen)
+      const randomX = -0.5 + Math.random() * 1.0; 
+      // Y stays between -0.4 and 0.1 (bottom half of the disc)
+      const randomY = -0.4 + Math.random() * 0.5;
+
+      note.position.set(randomX, randomY, 0.05);
+
+      note.userData = { 
+        baseY: randomY, 
+        baseX: randomX, 
+        offset: i * 0.45, 
+        playScale: 0 
+      };
+      
+      scene.add(note);
+      notes.push(note);
+    }
+  }, undefined, (err) => console.warn('[Ryzen] music.glb error:', err));
 }
 
 function animate() {
   requestAnimationFrame(animate);
-  const time = Date.now() * 0.001;
+  const realTime = Date.now() * 0.001;
 
+  // ─── BINARY TONEARM MOVEMENT ───
   if (tonearmPivot && tonearmLoaded) {
-    let targetZ = config.restAngle;
-    
-    if (isPlaying) {
-      // Swings the angle based on song progress
-      const trackProgress = (progress / Math.max(duration, 1));
-      targetZ = config.playAngleStart + ((config.playAngleEnd - config.playAngleStart) * trackProgress);
-    }
-
-    // Smoothly animate ONLY the rotation of the main pivot
+    const targetZ = isPlaying ? config.playAngle : config.restAngle;
     tonearmPivot.rotation.z += (targetZ - tonearmPivot.rotation.z) * 0.05;
   }
 
+  // ─── BUMP APP BALLOON EFFECT ───
+  const fps = 24; 
+  const steppedTime = Math.floor(realTime * fps) / fps;
+
   notes.forEach((note) => {
+    const life = (steppedTime * 0.35 + note.userData.offset) % 1.0;
+
     if (!isPlaying) {
-      note.visible = false;
-      return;
+      note.userData.playScale = THREE.MathUtils.lerp(note.userData.playScale, 0, 0.1);
+    } else {
+      note.userData.playScale = THREE.MathUtils.lerp(note.userData.playScale, 1, 0.1);
     }
-    note.visible = true;
-    const t = (time + note.userData.offset) % 2;
-    const cycle = Math.sin(t * Math.PI / 2);
-    note.position.y = note.userData.baseY + cycle * 0.15;
-    note.position.x = note.userData.baseX + Math.sin(t * 1.5) * 0.06;
+
+    const popScale = Math.sin(life * Math.PI) * note.userData.playScale * config.noteScale;
+    
+    note.scale.set(popScale, popScale, popScale);
+    note.visible = popScale > 0.001;
+
+    // ✨ FIXED: Float height reduced to 0.8 so they don't clip at the top
+    note.position.y = note.userData.baseY + (life * 0.8);
+    // Drift gently left and right
+    note.position.x = note.userData.baseX + Math.sin(life * Math.PI * 2) * 0.2;
+    
+    note.rotation.y = steppedTime * 2.0 + note.userData.offset;
+    note.rotation.z = Math.sin(steppedTime * 3 + note.userData.offset) * 0.3;
   });
 
   renderer.render(scene, camera);
 }
 
+// Update Playback from main.js
 export function updatePlayback(playing, progressMs, durationMs) {
   isPlaying = playing;
   progress = progressMs || 0;
