@@ -48,7 +48,7 @@ function createAvatarSelector(defaultSrc = avatarOptions[0], onChangeCallback = 
   avatarOptions.forEach(url => {
     const img = document.createElement('img');
     img.src = url;
-    img.dataset.avatarUrl = url; // Reliable tracking instead of parsing inline styles
+    img.dataset.avatarUrl = url; 
     img.style.cssText = `width:32px; height:32px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border 0.2s; object-fit:cover;`;
     
     if (url === defaultSrc) img.style.borderColor = 'black';
@@ -521,12 +521,9 @@ function initComments() {
 
   // ─── MAIN AVATAR SELECTOR INJECTION ───
   const commentFieldOuter = commentSection.querySelector('.commentFieldOuter');
-  
-  // Target the PFP image next to "Guest User" so we can update it dynamically
   const mainPfp = commentSection.querySelector('.userPfp .pfp') || commentSection.querySelector('.pfp');
 
   const mainAvatarSelector = createAvatarSelector(avatarOptions[0], (selectedUrl) => {
-    // This callback updates the "Guest User" PFP in the main input field whenever you click a selector avatar
     if (mainPfp) mainPfp.src = selectedUrl;
   });
 
@@ -594,7 +591,7 @@ function initComments() {
     div.innerHTML = `
       <div class="userCommentHeader">
         <div class="userPfp">
-          <img src="${avatarSrc}" alt="PFP" class="pfp" cursor:pointer; object-fit:cover;" title="Use this avatar">
+          <img src="${avatarSrc}" alt="PFP" class="pfp" style="cursor:pointer; object-fit:cover;" title="Use this avatar">
           <div>
             <p class="userName">${escapeHtml(comment.name)}</p>
             <p class="date">${date}</p>
@@ -615,14 +612,12 @@ function initComments() {
     const starBtn = div.querySelector('.commentStarBtn');
     const pfpImg = div.querySelector('.userPfp .pfp');
 
-    // ⭐ Clicking a comment's PFP updates the main comment field selector and image!
     if (pfpImg) {
       pfpImg.addEventListener('click', () => {
         mainAvatarSelector.setSelectedAvatar(avatarSrc);
       });
     }
 
-    // Save comment likes to DB
     starBtn.addEventListener('click', async () => {
       starBtn.innerText = '...';
       const newCount = await incrementCommentLikes(comment.id);
@@ -668,12 +663,10 @@ function initComments() {
 
       repliesSection.insertBefore(inputWrapper, repliesSection.firstChild);
 
-      // Inject Avatar Selector in reply box
-      const replyAvatarSelector = createAvatarSelector(avatarSrc); // Default to parent comment's avatar
+      const replyAvatarSelector = createAvatarSelector(avatarSrc); 
       const replyAvatarPicker = inputWrapper.querySelector('.reply-avatar-picker');
       replyAvatarPicker.appendChild(replyAvatarSelector);
 
-      // Pre-fill reply name if main name is filled
       const replyNameInput = inputWrapper.querySelector('.reply-name');
       if (nameInput?.value) replyNameInput.value = nameInput.value;
 
@@ -774,27 +767,70 @@ function initTurntable() {
   };
 
   const audioPlayer = new Audio();
-  audioPlayer.volume = 0.4;
+  const MAX_VOLUME = 0.4;
+  const FADE_DURATION = 2; // seconds to fade out before end
+  const FADE_IN_DURATION = 1; // seconds to fade in after start
+  audioPlayer.volume = 0;
   let audioReady = false;
   let currentPreview = null;
   let pendingPlay = false;
+  let fadeInStart = null;
+
+  function startFadeIn() {
+    fadeInStart = performance.now();
+    audioPlayer.volume = 0;
+  }
+
+  function audioAnimLoop() {
+    if (!audioPlayer.paused && audioPlayer.duration && isFinite(audioPlayer.duration)) {
+      const timeLeft = audioPlayer.duration - audioPlayer.currentTime;
+      
+      if (timeLeft <= FADE_DURATION && timeLeft > 0 && fadeInStart === null) {
+        // Fade out smoothly near the end
+        audioPlayer.volume = Math.max(0, (timeLeft / FADE_DURATION) * MAX_VOLUME);
+      } else if (fadeInStart !== null) {
+        // Fade in smoothly at the start
+        const elapsed = (performance.now() - fadeInStart) / 1000;
+        if (elapsed < FADE_IN_DURATION) {
+          audioPlayer.volume = Math.min(MAX_VOLUME, (elapsed / FADE_IN_DURATION) * MAX_VOLUME);
+        } else {
+          audioPlayer.volume = MAX_VOLUME;
+          fadeInStart = null;
+        }
+      } else if (audioPlayer.volume < MAX_VOLUME) {
+        audioPlayer.volume = MAX_VOLUME;
+      }
+    }
+    requestAnimationFrame(audioAnimLoop);
+  }
+  audioAnimLoop();
 
   audioPlayer.addEventListener('ended', () => {
     if (audioPlayer.src) {
       audioPlayer.currentTime = 0;
-      audioPlayer.play().catch(() => { });
+      audioPlayer.play().then(() => {
+        startFadeIn();
+      }).catch(() => { });
     }
   });
 
   function tryPlay() {
     if (!audioPlayer.src) return;
-    audioPlayer.play().catch(() => { });
+    if (audioPlayer.paused) {
+      audioPlayer.play().then(() => {
+        startFadeIn();
+      }).catch(() => { });
+    } else {
+      startFadeIn();
+    }
   }
 
   function syncAudio(previewUrl, isPlaying) {
     if (!isPlaying || !previewUrl) {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
+      audioPlayer.volume = 0;
+      fadeInStart = null;
       if (!previewUrl) {
         audioPlayer.src = '';
         currentPreview = null;
@@ -805,15 +841,16 @@ function initTurntable() {
     if (currentPreview !== previewUrl) {
       currentPreview = previewUrl;
       audioPlayer.src = previewUrl;
+      audioPlayer.volume = 0; // start silent, will fade in
+      pendingPlay = true;
+      if (audioReady) tryPlay();
     }
-    pendingPlay = true;
-    if (audioReady) tryPlay();
   }
 
   function unlockAudio() {
     if (audioReady) return;
     audioReady = true;
-    if (pendingPlay && audioPlayer.paused) tryPlay();
+    if (pendingPlay) tryPlay();
   }
 
   ['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(evt => {
@@ -917,7 +954,7 @@ function initTurntable() {
       syncMarquee();
 
       if (ttState.isPlaying) {
-        if (ttEls.status) ttEls.status.innerText = 'NOW PLAYING';
+        if (ttEls.status) ttEls.status.innerText = 'NOW PLAYING in Klent';
         if (!ttState.isDragging && ttEls.disc) ttEls.disc.classList.add('animate');
         updateTime(ttState.progressMs);
         startLiveTimer();
