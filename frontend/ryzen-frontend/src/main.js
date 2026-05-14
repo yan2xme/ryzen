@@ -427,7 +427,7 @@ function initComments() {
       .from('comments')
       .select('*')
       .eq('slug', currentSlug)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('[Ryzen] Comments fetch error:', error.message, '| code:', error.code);
