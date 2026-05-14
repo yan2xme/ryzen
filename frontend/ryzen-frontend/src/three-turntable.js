@@ -14,7 +14,6 @@ let duration = 1;
 let tonearmLoaded = false;
 const frustumSize = 2.2;
 
-// ─── UNCHANGED CALIBRATION CONFIG ───
 const config = {
   noteScale: 0.08, 
   scale: 0.22,
@@ -68,7 +67,7 @@ export function initThreeTurntable(container) {
   renderer.setSize(width, height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true; 
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+  renderer.shadowMap.type = THREE.PCFShadowMap; 
   
   renderer.domElement.style.position = 'absolute';
   renderer.domElement.style.top = '0';
@@ -80,47 +79,108 @@ export function initThreeTurntable(container) {
 
   container.appendChild(renderer.domElement);
 
-  // ─── LIGHTING: PERFECT NARROW TONEARM SHADOW ───
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); 
   scene.add(ambientLight);
 
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe0e0e0, 1.2); 
   scene.add(hemiLight);
 
-  // Positioned "above" the tonearm so it casts a shadow straight down onto the disc plane
   const frontLight = new THREE.DirectionalLight(0xffffff, 0.8);
   frontLight.position.set(0, .5, 3.0); 
-  
   frontLight.castShadow = true;
-  
-  // Tight shadow camera frustum
   frontLight.shadow.camera.left = -2;
   frontLight.shadow.camera.right = 2;
   frontLight.shadow.camera.top = 2;
   frontLight.shadow.camera.bottom = -2;
   frontLight.shadow.camera.near = 0.1;
   frontLight.shadow.camera.far = 20;
-  
   frontLight.shadow.mapSize.width = 1024;
   frontLight.shadow.mapSize.height = 1024;
   frontLight.shadow.bias = -0.002;
-  frontLight.shadow.radius = 4; // Soft edges for realistic hovering look
-  
+  frontLight.shadow.radius = 4; 
   scene.add(frontLight);
 
-  // Shadow catching plane
   const shadowPlane = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 20),
-    new THREE.ShadowMaterial({ opacity: 0.25, depthWrite: false }) // Visible but faint
+    new THREE.ShadowMaterial({ opacity: 0.25, depthWrite: false }) 
   );
-  shadowPlane.position.set(0, 0, -0.02); // Slightly behind the disc
+  shadowPlane.position.set(0, 0, -0.02); 
   shadowPlane.receiveShadow = true;
   scene.add(shadowPlane);
 
-  // ─── OPTIMIZED TEXTURE LOADING ───
-  const texManager = new THREE.LoadingManager();
-  texManager.onError = (url) => console.warn(`[Ryzen] Texture failed: ${url}`);
-  const texLoader = new THREE.TextureLoader(texManager);
+
+
+
+  // ─── THE CHUNKY, FAKE SYSTEM BOOT LOADER ───
+let currentP = 0;
+  let isRealLoaded = false;
+  const manager = new THREE.LoadingManager();
+
+  // Check if they already sat through the boot sequence this session
+  const hasBooted = sessionStorage.getItem('ryzenBooted') === 'true';
+
+  manager.onLoad = function () {
+    isRealLoaded = true;
+  };
+  manager.onError = function (url) {
+    console.warn(`[Ryzen] Asset failed: ${url}`);
+    isRealLoaded = true; 
+  };
+
+  function runFakeBoot() {
+    if (currentP >= 100) return;
+
+    // Wait for real assets to load
+    if (currentP >= 92 && !isRealLoaded) {
+      setTimeout(runFakeBoot, hasBooted ? 50 : 200); 
+      return;
+    }
+
+    // If already booted before, instantly jump to 100%
+    if (hasBooted) {
+      currentP = 100;
+    } else {
+      // Otherwise, do the chunky random jumps
+      const jump = Math.random() * 20 + 5;
+      currentP += jump;
+      if (currentP > 100) currentP = 100;
+    }
+
+    const loaderBar = document.getElementById('loader-bar');
+    const percentText = document.getElementById('loader-percent');
+    if (loaderBar) loaderBar.style.width = currentP + '%';
+    if (percentText) percentText.innerText = `[ ${Math.floor(currentP)}% ]`;
+
+    if (currentP === 100) {
+      // Save that they have booted
+      sessionStorage.setItem('ryzenBooted', 'true'); 
+      
+      setTimeout(() => {
+        const loaderEl = document.getElementById('brutal-loader');
+        if (loaderEl) {
+          if (hasBooted) {
+            // Instant vanish if they are just clicking around pages
+            loaderEl.style.display = 'none';
+          } else {
+            // Smooth fade for the first time
+            loaderEl.style.opacity = '0';
+            setTimeout(() => loaderEl.style.display = 'none', 600);
+          }
+        }
+      }, hasBooted ? 0 : 400); 
+    } else {
+      const delay = Math.random() * 400 + 200;
+      setTimeout(runFakeBoot, delay);
+    }
+  }
+  
+  runFakeBoot();
+
+
+
+
+  const texLoader = new THREE.TextureLoader(manager);
+  const loader = new GLTFLoader(manager);
   const maxAniso = renderer.capabilities.getMaxAnisotropy();
 
   function loadTex(path, srgb = false) {
@@ -137,14 +197,12 @@ export function initThreeTurntable(container) {
   const normalMap = loadTex('/models/Tonearm_normal.png');
   const aoMap = loadTex('/models/Tonearm_AO.png');
 
-  const loader = new GLTFLoader();
-
   loader.load('/models/tonearm.glb', (gltf) => {
     tonearmGroup = gltf.scene;
 
     tonearmGroup.traverse((child) => {
       if (child.isMesh) {
-        child.castShadow = true; // CRITICAL: Tonearm must cast
+        child.castShadow = true; 
         child.receiveShadow = true;
 
         if (child.material) {
@@ -166,7 +224,7 @@ export function initThreeTurntable(container) {
     });
 
     tonearmPivot = new THREE.Group();
-    tonearmPivot.position.set(config.pivotX, config.pivotY, 0.1); // Tonearm is in front
+    tonearmPivot.position.set(config.pivotX, config.pivotY, 0.1); 
     tonearmPivot.rotation.z = config.restAngle; 
 
     tonearmOffsetGroup = new THREE.Group();
@@ -182,10 +240,9 @@ export function initThreeTurntable(container) {
 
   }, undefined, (err) => console.error('[Ryzen] Tonearm GLB error:', err));
 
-  // ─── SOFT PASTEL YELLOW Y2K MATERIAL ───
   y2kNoteMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xFFEF5E,        // Signature pastel Y2K yellow
-    emissive: 0x332B00,     // Warm internal glow
+    color: 0xFFEF5E,        
+    emissive: 0x332B00,     
     metalness: 0.0,          
     roughness: 0.6,          
     clearcoat: 0.4,          
@@ -193,7 +250,7 @@ export function initThreeTurntable(container) {
     side: THREE.DoubleSide   
   });
 
-  createMusicNotes();
+  createMusicNotes(loader); 
   animate();
 
   window.addEventListener('resize', () => {
@@ -210,9 +267,7 @@ export function initThreeTurntable(container) {
   });
 }
 
-function createMusicNotes() {
-  const loader = new GLTFLoader();
-
+function createMusicNotes(loader) {
   loader.load('/models/music.glb', (gltf) => {
     const baseNote = gltf.scene;
 

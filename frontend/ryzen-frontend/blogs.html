@@ -7,7 +7,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Home | Ryzen</title>
+    <title>Blogs | Ryzen</title>
+
     <meta
       name="description"
       content="Technical Virtual Assistant & Developer based in the Philippines."
@@ -18,6 +19,7 @@
       content="I build systems, fix tech, and keep operations running."
     />
     <meta property="og:image" content="./src/assets/klent.jpg" />
+
     <script>
       // Instantly kill the loader before the page even renders if we've already booted
       if (sessionStorage.getItem("ryzenBooted") === "true") {
@@ -111,7 +113,7 @@
       <div class="leftside">
         <aside class="neoBrutal left">
           <div class="top">
-            <img class="ryzen" src="./src/assets/ryzen.svg" />
+            <img class="ryzen" src="./src/assets/ryzen.svg" /> <img />
             <h1 class="logo">hokaido</h1>
           </div>
 
@@ -125,8 +127,8 @@
 
             <div class="botBot">
               <a href="index.html"><h1>Home</h1></a>
-              <hr class="selection-highlight" />
               <a href="blogs.html"><h1>Blogs</h1></a>
+              <hr class="selection-highlight" />
               <a href="about.html"><h1>About</h1></a>
             </div>
           </div>
@@ -136,16 +138,48 @@
           <h1 class="quickLinks" style="padding: 0; margin-bottom: 1rem">
             QUICK LINKS
           </h1>
+
           <div class="botBot rightSide" style="padding-top: 0">
             <a href="#"><h1>Setup</h1></a>
-            <hr class="selection-highlight" />
+            <p
+              style="
+                font-size: 12px;
+                margin-top: -5px;
+                margin-bottom: 15px;
+                color: #555;
+              "
+            >
+              Gear, tools, and daily drivers.
+            </p>
+
             <a href="#"><h1>Socials</h1></a>
+            <p
+              style="
+                font-size: 12px;
+                margin-top: -5px;
+                margin-bottom: 15px;
+                color: #555;
+              "
+            >
+              Where I yap on the internet.
+            </p>
+
             <a href="#"><h1>CV</h1></a>
+            <p
+              style="
+                font-size: 12px;
+                margin-top: -5px;
+                margin-bottom: 15px;
+                color: #555;
+              "
+            >
+              The formal paperwork. (PDF)
+            </p>
           </div>
         </div>
       </div>
 
-      <main style="padding-top: 6rem">
+      <main>
         <button
           id="mobileMenuBtn"
           class="neoBrutal2"
@@ -166,55 +200,36 @@
           ☰
         </button>
 
-        <article
-          class="outer neoBrutal"
-          style="height: auto; padding-bottom: 2rem"
-        >
-          <h1 class="indicator">INDEX</h1>
-          <h1
-            class="tt"
-            style="line-height: 1.1; margin-bottom: 1.5rem; margin-top: 0.5rem"
-          >
-            I build systems,<br />fix tech, and keep<br />operations running.
-          </h1>
-          <hr class="articleLine" />
-
-          <div
-            style="
-              font-family: &quot;Inconsolata&quot;, monospace;
-              font-size: 1.1rem;
-              line-height: 1.6;
-              padding-top: 1.5rem;
-            "
-          >
-            <p>
-              Hi, I’m Klent. I’m a Technical Virtual Assistant and Developer. I
-              help founders and businesses untangle their backend chaos.
-            </p>
-            <br />
-
-            <p><strong>Core Capabilities:</strong></p>
-            <ul style="padding-left: 1.5rem; margin-top: 0.5rem">
-              <li>
-                <strong>Technical Troubleshooting:</strong> Website maintenance,
-                frontend fixes (Vite, React, SCSS), and system audits.
-              </li>
-              <li style="margin-top: 0.5rem">
-                <strong>Operations Management:</strong> Cross-team
-                communication, schedule coordination, and project lifecycle
-                tracking.
-              </li>
-              <li style="margin-top: 0.5rem">
-                <strong>System Setup:</strong> Connecting tools, managing
-                databases (Supabase), and deploying headless CMS (Sanity).
-              </li>
-            </ul>
-            <br />
-
-            <p>
-              Need someone to handle the technical heavy lifting? Let's talk.
-            </p>
+        <nav class="top">
+          <div class="inside">
+            <input
+              id="searchInput"
+              type="text"
+              class="searchDimension neoBrutal2"
+              placeholder="Search"
+            />
           </div>
+        </nav>
+
+        <header class="stories neoBrutal">
+          <h1 class="stories">STORIES</h1>
+          <div class="stories-grid">
+            <button class="leftArrow">
+              <embed class="embed" src="./src/assets/arrow.svg" />
+            </button>
+
+            <div class="storyContainer" id="storyContainer"></div>
+
+            <button class="rightArrow">
+              <embed class="Arrow" src="./src/assets/arrow.svg" />
+            </button>
+          </div>
+        </header>
+
+        <div id="post-feed"></div>
+
+        <article class="end neoBrutal">
+          <p>that's the end of the blog, I guess</p>
         </article>
       </main>
 
@@ -222,12 +237,15 @@
         <aside class="right1 neoBrutal">
           <p>Now Playing</p>
           <p></p>
+
           <p class="songText">Sunkissed LOLA</p>
+
           <div class="animate overlay">
             <div class="overlay2">
               <img src="./src/assets/albumArt.jpg" class="albumArt" />
             </div>
           </div>
+
           <div class="attributes">
             <div class="att1">
               <div class="marquee-content">
@@ -239,12 +257,14 @@
                 <p> • </p>
               </div>
             </div>
+
             <p class="time">1:43</p>
           </div>
         </aside>
 
         <aside class="right2 neoBrutal">
           <h1 class="quickLinks">QUICK LINKS</h1>
+
           <div class="botBot rightSide" style="padding-top: 0">
             <a href="#"><h1>Setup</h1></a>
             <p

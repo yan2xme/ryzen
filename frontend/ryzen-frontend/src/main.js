@@ -177,6 +177,24 @@ function initHomepage() {
   const storyContainer = document.getElementById("storyContainer");
   const searchInput = document.getElementById("searchInput");
 
+  // ─── INSTAGRAM-STYLE STORY SCROLLING ───
+  const leftArrow = document.querySelector('.leftArrow');
+  const rightArrow = document.querySelector('.rightArrow');
+
+  if (leftArrow && rightArrow && storyContainer) {
+    // Scroll by roughly 2.5 stories at a time
+    const scrollAmount = 250; 
+
+    leftArrow.addEventListener('click', () => {
+      storyContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    rightArrow.addEventListener('click', () => {
+      storyContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+  }
+  // ───────────────────────────────────────
+
   if (!feedContainer && !storyContainer) return;
 
   async function fetchPosts(queryStr) {
@@ -293,13 +311,26 @@ function openStoryOverlay(story, imageUrl) {
   newUrl.searchParams.set('story', story.slug.current);
   window.history.pushState({ path: newUrl.href }, '', newUrl.href);
 
+  // ─── DATE FORMAT FIX ───
+  // Convert the ugly ISO string into a clean, readable format
+  const rawDate = new Date(story.datePosted);
+  const formattedDate = isNaN(rawDate) 
+    ? story.datePosted 
+    : rawDate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric', 
+        hour: 'numeric', 
+        minute: '2-digit' 
+      });
+
   overlay.innerHTML = `
     <div class="storyContentOverlay neoBrutal">
       <div class="storyHeader">
         <div class="storyProfile"><img src="${myEllipse}" alt="Profile" /></div>
         <button class="closeStory" aria-label="Close story"></button>
         <div class="storyFont">Klent Tangaro</div>
-        <div class="storyFont2">${story.datePosted}</div>
+        <div class="storyFont2">${timeAgo(story.datePosted)} • ${formattedDate}</div>
         <img src="${gradient}" alt="" />
       </div>
       <img src="${imageUrl}" alt="story" />
@@ -330,6 +361,8 @@ function initArticlePage() {
         postInnerContainer.innerHTML = '<p>Post not found.</p>';
         return;
       }
+
+      document.title = `${result.title} | Ryzen`;
 
       const imageUrl = sanityImageUrl(result.blogPosterImage.asset._ref);
       const [globalLikes, commentCount] = await Promise.all([

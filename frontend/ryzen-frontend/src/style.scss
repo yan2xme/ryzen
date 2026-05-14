@@ -29,12 +29,12 @@
   line-height: 0.8;
   font-size: 68pt;
   min-height: 0.9em;
-  overflow-wrap: break-word; 
-   hyphens: auto; 
-     white-space: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  white-space: normal;
 }
 
-@mixin p{
+@mixin p {
   font-family: Inconsolata;
   margin: 0;
 }
@@ -62,20 +62,20 @@ h1.tt {
   @include malaki(48pt);
 }
 
-@mixin top($mT){
-  z-index:10;
-  margin-top:$mT;
+@mixin top($mT) {
+  z-index: 10;
+  margin-top: $mT;
   position: fixed;
   display: flex;
   justify-content: center;
 }
 
 nav.top {
-@include top(-5rem);
+  @include top(-5rem);
 }
 
 nav.top2 {
-@include top(-7.6rem);
+  @include top(-7.6rem);
 }
 
 .inside {
@@ -150,7 +150,7 @@ input.searchDimension2 {
 }
 
 button.buttonDimension {
-    z-index: 0;
+  z-index: 0;
   @include buttonD(
     white,
     1rem,
@@ -181,8 +181,8 @@ button.buttonDimension3 {
     white,
     1rem,
     0.8rem,
-    5.75rem,    /* FIXED: was 2.75rem — mas maliit pa sa padding-left! */
-    2.875rem,
+    5.75rem,
+    /* FIXED: was 2.75rem — mas maliit pa sa padding-left! */ 2.875rem,
     3rem,
     0rem,
     url(./assets/chat_bubble\ \(1\).svg) no-repeat
@@ -190,6 +190,8 @@ button.buttonDimension3 {
 }
 
 .buttonDimension4 {
+  position: relative;
+  left: .6rem;
   align-content: center;
   @include buttonD(
     white,
@@ -199,7 +201,7 @@ button.buttonDimension3 {
     2.875rem,
     4rem,
     0rem,
-    url(./assets/arrow_back.svg) no-repeat
+    white url(./assets/arrow_back.svg) no-repeat
   );
 }
 
@@ -233,7 +235,7 @@ button.buttonDimension7 {
   @include buttonD(
     white,
     0.5rem,
-    0rem,
+    0.3rem,
     1rem,
     2.875rem,
     3rem,
@@ -308,7 +310,7 @@ button.buttonDimension12 {
 }
 
 .reply-container {
-  margin-left: 2rem;       // Indent the reply
+  margin-left: 2rem; // Indent the reply
   border-left: 2px solid black; // The vertical line from your reference
   padding-left: 1.5rem;
   margin-top: 1rem;
@@ -388,7 +390,7 @@ aside.left {
 }
 
 aside.left2 {
-  @include aside(6rem,-2rem);
+  @include aside(6rem, -2rem);
 }
 
 div.leftSide {
@@ -414,7 +416,7 @@ div.leftSide {
 
 div.botBot {
   line-height: 1.2;
-  padding-top: 5rem;
+  padding-top: 2rem; /* Reduced from 5rem to pull the nav up */
 }
 
 .logo {
@@ -445,7 +447,7 @@ div.leftText {
 header.stories {
   margin-top: 6rem;
   width: 40.8765rem;
-  height: 15rem;
+  height: 14rem; /* Shrunk from 15rem to tighten the box */
   background-color: white;
 }
 
@@ -502,10 +504,19 @@ div.stories-grid {
 div.storyContainer {
   margin-left: -0.375rem;
   overflow-y: hidden;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  scroll-behavior: smooth; /* Make the button jumps buttery smooth */
   white-space: nowrap;
   width: 35rem;
   height: 6.25rem;
   background-color: white;
+
+  /* Hide scrollbar for a clean Instagram look */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 .storyLine {
@@ -567,12 +578,12 @@ div.storyContainer {
   display: flex;
 }
 
-.story{
+.story {
   width: 6.25rem;
   height: 6.25rem;
 }
 
-.polShadow{
+.polShadow {
   filter: drop-shadow(0px 2px rgba(0, 0, 0, 0.5));
 }
 
@@ -588,9 +599,9 @@ div.storyContainer {
 .attributes {
   position: absolute;
   bottom: 0;
-  left: 0rem;          // Break out of parent padding to span full width
+  left: 0rem; // Break out of parent padding to span full width
   right: -1rem;
-  height: 3rem;         // FIXED: locked height, no more 1-line collapse
+  height: 3rem; // FIXED: locked height, no more 1-line collapse
   margin: 0;
   padding: 0 1rem;
   box-sizing: border-box;
@@ -609,7 +620,7 @@ div.storyContainer {
   flex: 1;
   min-width: 0;
   position: relative;
-  padding-left: 0.5rem;  // Safe zone so text doesn't clip at edge
+  padding-left: 0.5rem; // Safe zone so text doesn't clip at edge
 }
 
 .marquee-content {
@@ -618,7 +629,7 @@ div.storyContainer {
   gap: 0.25rem;
   width: max-content;
   animation: marqueeSlide 20s linear infinite;
-  padding-right: 2rem;   // Gap before loop restarts so no seam
+  padding-right: 2rem; // Gap before loop restarts so no seam
 }
 
 @keyframes marqueeSlide {
@@ -635,7 +646,7 @@ div.storyContainer {
   flex-shrink: 0;
 }
 
-.enclosure{
+.enclosure {
   width: 97%;
   height: 1.5rem;
 }
@@ -779,6 +790,8 @@ aside.right1 {
 }
 
 aside.right2 {
+  height: auto; /* Let it shrink to fit the text */
+  padding-bottom: 2rem;
   position: fixed;
   margin-top: 30.275rem;
   @include aside(v.$ryzenYellow, 21.875rem, 24rem);
@@ -801,7 +814,7 @@ aside.right2 {
 }
 
 .overlay {
-   z-index: 3;
+  z-index: 3;
   @include overlay(-1.3rem, 0, relative, 1, 20rem, 20rem, v.$greyDisc);
 }
 
@@ -827,7 +840,7 @@ aside.right2 {
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
-  
+
   &:active {
     cursor: grabbing;
   }
@@ -876,7 +889,7 @@ aside.right2 {
   width: 31.25rem;
 }
 
-@mixin storyFont($top,$left){
+@mixin storyFont($top, $left) {
   @include p();
   color: white;
   box-sizing: border-box;
@@ -885,16 +898,16 @@ aside.right2 {
   left: $left;
 }
 .storyFont {
-@include storyFont(1.8rem,5rem)
+  @include storyFont(1.8rem, 5rem);
 }
 
-.storyFont2{
+.storyFont2 {
   font-weight: 100;
   font-size: 9pt;
-  @include storyFont(2.9rem,5rem)
+  @include storyFont(2.9rem, 5rem);
 }
 
-.closeStory{
+.closeStory {
   color: white;
   width: 2.5rem;
   height: 2.5rem;
@@ -902,16 +915,16 @@ aside.right2 {
   position: absolute;
   right: 2rem;
   top: 1.5rem;
-  background: white url(./assets/X.svg) no-repeat .5rem;
+  background: white url(./assets/X.svg) no-repeat 0.5rem;
   cursor: pointer;
-  box-shadow: .6rem .6rem rgba(0, 0, 0, 0.3);
+  box-shadow: 0.6rem 0.6rem rgba(0, 0, 0, 0.3);
 }
 
 .story {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-.storyProfile{
+.storyProfile {
   left: 2rem;
   top: 1.5rem;
   position: absolute;
@@ -926,7 +939,7 @@ aside.right2 {
   height: 100%;
 }
 
-@mixin overlayEffect($status){
+@mixin overlayEffect($status) {
   position: fixed;
   display: $status;
   justify-content: center;
@@ -941,12 +954,12 @@ aside.right2 {
   z-index: 11;
 }
 
-.overlayEffect{
-  @include overlayEffect(none)
+.overlayEffect {
+  @include overlayEffect(none);
 }
 
-.overlayEffect.active{
-  @include overlayEffect(flex)
+.overlayEffect.active {
+  @include overlayEffect(flex);
 }
 
 #typed {
@@ -992,9 +1005,15 @@ button.buttonDimension10 {
 }
 
 @keyframes starPop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -1021,84 +1040,89 @@ button.buttonDimension10 {
    ───────────────────────────────────────── */
 @media (max-width: 900px) {
   /* Prevent horizontal scrolling and zoom issues */
-  body, html { 
-    overflow-x: hidden; 
-    width: 100%; 
+  body,
+  html {
+    overflow-x: hidden;
+    width: 100%;
   }
 
   /* Hamburger Button */
-  #mobileMenuBtn { 
-    display: block !important; 
-    position: fixed; 
-    top: 1.25rem; 
-    right: 1.5rem; 
-    z-index: 1001; 
+  #mobileMenuBtn {
+    display: block !important;
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    z-index: 1001;
   }
 
   /* ─── FIX THE TOP SEARCH NAV ─── */
-  nav.top, nav.top2 {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
+  nav.top,
+  nav.top2 {
+    position: fixed;
+    top: 0;
+    left: 0;
     margin: 0;
-    padding: 1rem 1.5rem; 
-    width: 100%; 
+    padding: 1rem 1.5rem;
+    width: 100%;
     background: white;
-    z-index: 998; 
+    z-index: 998;
     box-sizing: border-box;
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: flex-start;
     border-bottom: 4px solid black;
   }
-  
-  .inside { 
-    margin: 0; 
+
+  .inside {
+    margin: 0;
     width: calc(100% - 4rem); /* Leaves perfect space for the hamburger */
-    height: auto; 
+    height: auto;
   }
-  
-  input.searchDimension { 
-    width: 100%; 
+
+  input.searchDimension {
+    position: relative;
+    top: 0.25rem;
+    right: 1.4rem;
+    width: 85%;
     padding-left: 3rem; /* Keeps the search icon visible */
-    padding-right: 1rem; 
-    font-size: 16px; 
+    padding-right: 1rem;
+    font-size: 16px;
   }
 
   /* ─── GRID & MAIN FEED ─── */
-  div.layout-grid, 
+  div.layout-grid,
   div.layout-gridArticle {
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     width: 100%;
     padding: 6rem 1.5rem 7rem 1.5rem; /* Room for Top Nav and Bottom Player */
     box-sizing: border-box;
-    min-height: 100vh; 
+    min-height: 100vh;
     overflow-x: hidden;
   }
-  
+
   main {
-    width: 100%; 
-    margin: 0; 
-    display: flex; 
+    width: 100%;
+    margin: 0;
+    display: flex;
     flex-direction: column;
     align-items: flex-start; /* FIXED: This stops the left-shifting clip bug! */
     gap: 1.5rem;
   }
 
   /* ─── AESTHETIC POLISH (TYPOGRAPHY & IMAGES) ─── */
-  
+
   /* Shrink the massive desktop titles for phone screens */
   h1.tt {
-    font-size: 32pt !important; 
+    font-size: 32pt !important;
     line-height: 1.1;
     margin-bottom: 0.5rem;
   }
 
   /* Make the card padding uniform but slightly tighter for small screens */
-  article.outer, 
-  article.inside { 
-    padding: 1.25rem !important; 
+  article.outer,
+  article.inside {
+    padding: 1.25rem !important;
   }
 
   /* Force the image to span perfectly inside the card */
@@ -1119,86 +1143,161 @@ button.buttonDimension10 {
   }
 
   /* Clean up the footer alignment */
-  footer { 
-    padding-top: 0.5rem !important; 
+  footer {
+    padding-top: 0.5rem !important;
     align-items: center;
   }
 
   /* ─── CARDS & MARGINS ─── */
-  .post { width: 100%; }
-  
-  header.stories, 
-  article.outer, 
-  article.end, 
+  .post {
+    width: 100%;
+  }
+
+  header.stories,
+  article.outer,
+  article.end,
   article.inside {
     width: 100% !important; /* Let the container padding handle the shadow */
     margin: 0 !important;
-    height: auto !important; 
+    height: auto !important;
     box-sizing: border-box;
   }
-  
-  article.outer, 
-  article.inside { padding: 1.5rem; }
+
+  article.outer,
+  article.inside {
+    padding: 1.5rem;
+  }
 
   /* Card Footers (Fixing squished buttons) */
-  footer { width: 100%; flex-wrap: wrap; gap: 1rem; padding: 1rem 0 0 0; }
-  .butts, .butts2 { margin: 0 !important; width: 100%; justify-content: flex-start; }
+  footer {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 0 0 0;
+  }
+  .butts,
+  .butts2 {
+    margin: 0 !important;
+    width: 100%;
+    justify-content: flex-start;
+  }
 
   /* ─── STORIES SWIPE ─── */
-  div.storyContainer { width: 100%; overflow-x: auto; padding-bottom: 1rem; }
-  .leftArrow, .rightArrow { display: none; }
-  div.stories-grid { display: block; }
+  div.storyContainer {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+  .leftArrow,
+  .rightArrow {
+    display: none;
+  }
+  div.stories-grid {
+    display: block;
+  }
 
   /* ─── DRAWER (REDDIT SIDEBAR) ─── */
   .leftside {
-    position: fixed; top: 0; left: -100%; width: 80vw; height: 100vh;
-    background-color: v.$ryzenYellow; z-index: 1000;
-    transition: left 0.3s ease-in-out; border-right: 4px solid black;
-    overflow-y: auto; padding: 1rem; box-sizing: border-box;
-    
-    &.active { left: 0; }
-    aside.left, aside.left2 { position: static; width: 100%; height: auto; margin: 0; box-shadow: none; outline: none; }
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80vw;
+    height: 100vh;
+    background-color: v.$ryzenYellow;
+    z-index: 1000;
+    transition: left 0.3s ease-in-out;
+    border-right: 4px solid black;
+    overflow-y: auto;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    &.active {
+      left: 0;
+    }
+    aside.left,
+    aside.left2 {
+      position: static;
+      width: 100%;
+      height: auto;
+      margin: 0;
+      box-shadow: none;
+      outline: none;
+    }
   }
-  
-  aside.right2 { display: none !important; }
-  .mobile-quick-links { display: block; }
+
+  aside.right2 {
+    display: none !important;
+  }
+  .mobile-quick-links {
+    display: block;
+  }
 
   /* ─── INSIDE YOUR @media (max-width: 900px) ─── */
-  aside.right2 { 
+  aside.right2 {
     display: none !important; /* Kills the desktop box on mobile */
   }
-  
-  .mobile-quick-links { 
+
+  .mobile-quick-links {
     display: block !important; /* Revives the clone ONLY on mobile */
   }
 
   /* ─── SMOL PLAYER (MUSIC FOOTER FIXED) ─── */
   aside.right1 {
-    position: fixed; bottom: 0; left: 0; width: 100%; height: 5.5rem;
-    margin: 0 !important; padding: 0 1.5rem; background-color: white;
-    z-index: 999; border-top: 4px solid black;
-    display: flex; flex-direction: row; align-items: center; box-sizing: border-box;
-    
-    canvas { display: none !important; }
-    .songText, > p:first-child { display: none; }
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5.5rem;
+    margin: 0 !important;
+    padding: 0 1.5rem;
+    background-color: white;
+    z-index: 999;
+    border-top: 4px solid black;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-sizing: border-box;
+
+    canvas {
+      display: none !important;
+    }
+    .songText,
+    > p:first-child {
+      display: none;
+    }
 
     /* Forcibly center the album art inside the disc */
     .overlay {
-      position: relative !important; width: 3.5rem !important; height: 3.5rem !important;
-      margin: 0 !important; flex-shrink: 0;
+      position: relative !important;
+      width: 3.5rem !important;
+      height: 3.5rem !important;
+      margin: 0 !important;
+      flex-shrink: 0;
     }
     .overlay2 {
-      position: absolute !important; top: 50% !important; left: 50% !important;
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
       transform: translate(-50%, -50%) !important;
-      margin: 0 !important; width: 2.5rem !important; height: 2.5rem !important;
+      margin: 0 !important;
+      width: 2.5rem !important;
+      height: 2.5rem !important;
     }
 
     .attributes {
-      position: relative !important; flex: 1; height: 100% !important;
-      background: transparent !important; padding: 0 0 0 1rem !important;
-      margin: 0 !important; display: flex; align-items: center; bottom: auto !important;
+      position: relative !important;
+      flex: 1;
+      height: 100% !important;
+      background: transparent !important;
+      padding: 0 0 0 1rem !important;
+      margin: 0 !important;
+      display: flex;
+      align-items: center;
+      bottom: auto !important;
     }
-    .time { display: none; }
+    .time {
+      display: none;
+    }
   }
   /* ─── FIX THE COMMENT SECTION FOR MOBILE ─── */
   .commentSection {
@@ -1225,9 +1324,9 @@ button.buttonDimension10 {
   }
 
   /* Shrink the nesting indent so replies don't fall off the right edge */
-  .replies-section, 
+  .replies-section,
   .reply-container {
-    margin-left: 1rem !important; 
+    margin-left: 1rem !important;
     padding-left: 0.5rem !important;
   }
 
@@ -1236,7 +1335,7 @@ button.buttonDimension10 {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   .commentFooter {
     flex-wrap: wrap;
     gap: 0.5rem !important;
@@ -1261,11 +1360,24 @@ button.buttonDimension10 {
 
   /* Adjust the header text and close button so they don't get cut off */
   .closeStory {
-    right: 1rem !important; 
+    right: 1rem !important;
     top: 1rem !important;
   }
 
-  .storyFont, .storyFont2 {
+  .storyFont,
+  .storyFont2 {
     left: 5rem !important; /* Pulls the text inward so it doesn't overlap the X */
   }
+}
+
+
+.rightSide a h1 {
+  transition: all 0.2s ease;
+  display: inline-block; /* Required for transform to work */
+}
+
+.rightSide a:hover h1 {
+  transform: translate(-4px, -4px);
+  text-shadow: 4px 4px 0px black;
+  color: v.$ryzenYellow; /* Or just keep it black! */
 }
