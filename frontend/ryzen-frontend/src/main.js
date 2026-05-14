@@ -29,6 +29,53 @@ const currentSlug = urlParams.get('slug');
 // ─────────────────────────────────────────
 // UTILITIES
 // ─────────────────────────────────────────
+const avatarOptions = [
+  myEllipse, // Your profile picture is the default first option!
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Buster',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Daisy',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Gizmo'
+];
+
+function createAvatarSelector(defaultSrc = avatarOptions[0], onChangeCallback = null) {
+  const container = document.createElement('div');
+  container.className = 'avatar-selector';
+  container.style.cssText = 'display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center;';
+  
+  let currentSelectedSrc = defaultSrc;
+
+  avatarOptions.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.dataset.avatarUrl = url; // Reliable tracking instead of parsing inline styles
+    img.style.cssText = `width:32px; height:32px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border 0.2s; object-fit:cover;`;
+    
+    if (url === defaultSrc) img.style.borderColor = 'black';
+
+    img.addEventListener('click', () => {
+      currentSelectedSrc = url;
+      container.querySelectorAll('img').forEach(i => i.style.borderColor = 'transparent');
+      img.style.borderColor = 'black';
+      if (onChangeCallback) onChangeCallback(url);
+    });
+
+    container.appendChild(img);
+  });
+
+  container.getSelectedAvatar = () => currentSelectedSrc;
+  
+  container.setSelectedAvatar = (url) => {
+    currentSelectedSrc = url;
+    container.querySelectorAll('img').forEach(img => {
+      img.style.borderColor = img.dataset.avatarUrl === url ? 'black' : 'transparent';
+    });
+    if (onChangeCallback) onChangeCallback(url);
+  };
+
+  return container;
+}
+
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
@@ -73,7 +120,6 @@ function wrapSelection(textarea, open, close) {
   textarea.focus();
 }
 
-// Dynamic relative time: "2m ago", "1h ago", "5d ago", "12-12-2012"
 function timeAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -89,7 +135,6 @@ function timeAgo(dateString) {
   const months = Math.floor(days / 30);
   if (months < 12) return `${months}mo ago`;
 
-  // Fallback to MM-DD-YYYY for old dates
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const yyyy = date.getFullYear();
@@ -169,6 +214,32 @@ async function incrementGlobalLikes(slug) {
   return newCount;
 }
 
+async function incrementCommentLikes(commentId) {
+  if (!supabase) return 0;
+  const { data: existing, error: fetchErr } = await supabase
+    .from('comments')
+    .select('likes_count')
+    .eq('id', commentId)
+    .single();
+
+  if (fetchErr) {
+    console.error('[Ryzen] Comment like fetch error:', fetchErr.message);
+    return 0;
+  }
+
+  const newCount = (existing?.likes_count || 0) + 1;
+  const { error: updateErr } = await supabase
+    .from('comments')
+    .update({ likes_count: newCount })
+    .eq('id', commentId);
+
+  if (updateErr) {
+    console.error('[Ryzen] Comment like update error:', updateErr.message);
+    return existing?.likes_count || 0;
+  }
+  return newCount;
+}
+
 // ─────────────────────────────────────────
 // HOMEPAGE (Feed + Stories)
 // ─────────────────────────────────────────
@@ -177,23 +248,18 @@ function initHomepage() {
   const storyContainer = document.getElementById("storyContainer");
   const searchInput = document.getElementById("searchInput");
 
-  // ─── INSTAGRAM-STYLE STORY SCROLLING ───
   const leftArrow = document.querySelector('.leftArrow');
   const rightArrow = document.querySelector('.rightArrow');
 
   if (leftArrow && rightArrow && storyContainer) {
-    // Scroll by roughly 2.5 stories at a time
     const scrollAmount = 250;
-
     leftArrow.addEventListener('click', () => {
       storyContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
     });
-
     rightArrow.addEventListener('click', () => {
       storyContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     });
   }
-  // ───────────────────────────────────────
 
   if (!feedContainer && !storyContainer) return;
 
@@ -229,7 +295,7 @@ function initHomepage() {
               <p class="enclosure">${escapeHtml(preview)}</p>
             </div>
             <img class="articleImg" src="${imageUrl}" alt="${escapeHtml(post.title)}" />
-       <footer>
+            <footer>
               <img src="${myEllipse}" alt="Profile Picture" class="pfp" />
               <p class="footerText">Klent Tangaro</p>
               <div class="butts">
@@ -237,11 +303,9 @@ function initHomepage() {
                 <button class="buttonDimension3" type="button" onclick="window.location.href='../article.html?slug=${slug}#ryzen-comments'">${comments}</button>
               </div>
             </footer>
-
           </article><br><br>`;
         feedContainer.appendChild(div);
 
-        // ⭐ OUTER STAR — black indicator on click
         const likeBtnOuter = div.querySelector('.like-outer');
         likeBtnOuter.addEventListener('click', async (e) => {
           e.preventDefault();
@@ -312,8 +376,6 @@ function openStoryOverlay(story, imageUrl) {
   newUrl.searchParams.set('story', story.slug.current);
   window.history.pushState({ path: newUrl.href }, '', newUrl.href);
 
-  // ─── DATE FORMAT FIX ───
-  // Convert the ugly ISO string into a clean, readable format
   const rawDate = new Date(story.datePosted);
   const formattedDate = isNaN(rawDate)
     ? story.datePosted
@@ -414,7 +476,6 @@ function initArticlePage() {
         }
       });
 
-      // ⭐ INNER STAR — black indicator on click
       const likeBtn = div.querySelector('.likeBtn');
       likeBtn.addEventListener('click', async () => {
         const newCount = await incrementGlobalLikes(currentSlug);
@@ -423,6 +484,16 @@ function initArticlePage() {
       });
     })
     .catch(error => console.error("[Ryzen] Inner fetch failed:", error));
+}
+
+// ─────────────────────────────────────────
+// HELPER: bump the article-page comment count button
+// ─────────────────────────────────────────
+function bumpArticleCommentCount(delta = 1) {
+  const btn = document.querySelector('.commentCountBtn');
+  if (!btn) return;
+  const current = parseInt(btn.innerText, 10) || 0;
+  btn.innerText = current + delta;
 }
 
 // ─────────────────────────────────────────
@@ -441,22 +512,49 @@ function initComments() {
     return;
   }
 
-  // Wire up main composer toolbar
+  // ─── DYNAMIC COMMENTS COUNT HEADER ───
+  const commentsCountHeader = document.createElement('div');
+  commentsCountHeader.className = 'comments-count-header';
+  commentsCountHeader.style.cssText = 'font-family:Inconsolata,monospace; font-size:1.5rem; font-weight:700; margin:1rem 0 0.5rem;';
+  commentsCountHeader.innerText = '0 Comments';
+  hrLine.insertAdjacentElement('afterend', commentsCountHeader);
+
+  // ─── MAIN AVATAR SELECTOR INJECTION ───
+  const commentFieldOuter = commentSection.querySelector('.commentFieldOuter');
+  
+  // Target the PFP image next to "Guest User" so we can update it dynamically
+  const mainPfp = commentSection.querySelector('.userPfp .pfp') || commentSection.querySelector('.pfp');
+
+  const mainAvatarSelector = createAvatarSelector(avatarOptions[0], (selectedUrl) => {
+    // This callback updates the "Guest User" PFP in the main input field whenever you click a selector avatar
+    if (mainPfp) mainPfp.src = selectedUrl;
+  });
+
+  if (commentFieldOuter) {
+    const mainAvatarPicker = document.createElement('div');
+    mainAvatarPicker.className = 'main-avatar-picker';
+    mainAvatarPicker.style.cssText = 'padding-bottom:0.5rem; padding-left:0.5rem;';
+    mainAvatarPicker.appendChild(mainAvatarSelector);
+    commentFieldOuter.insertBefore(mainAvatarPicker, mainTextarea);
+  }
+
+  function updateCommentsCountDisplay(count) {
+    commentsCountHeader.innerText = `${count} Comment${count !== 1 ? 's' : ''}`;
+  }
+
   const boldBtn = document.getElementById('boldBtn');
   const italicBtn = document.getElementById('italicBtn');
   const cancelBtn = commentSection?.querySelector('.footerCommentField .buttonDimension8');
 
-  if (boldBtn && mainTextarea) {
-    boldBtn.addEventListener('click', () => wrapSelection(mainTextarea, '**', '**'));
-  }
-  if (italicBtn && mainTextarea) {
-    italicBtn.addEventListener('click', () => wrapSelection(mainTextarea, '*', '*'));
-  }
-  if (cancelBtn && mainTextarea) {
-    cancelBtn.addEventListener('click', () => { mainTextarea.value = ''; });
-  }
+  if (boldBtn && mainTextarea) boldBtn.addEventListener('click', () => wrapSelection(mainTextarea, '**', '**'));
+  if (italicBtn && mainTextarea) italicBtn.addEventListener('click', () => wrapSelection(mainTextarea, '*', '*'));
+  if (cancelBtn && mainTextarea) cancelBtn.addEventListener('click', () => { mainTextarea.value = ''; });
 
+  // ─── LOAD & RENDER COMMENTS ───
   async function loadComments() {
+    const existingRoot = commentSection.querySelector('.comments-root');
+    if (existingRoot) existingRoot.remove();
+
     const { data, error } = await supabase
       .from('comments')
       .select('*')
@@ -465,13 +563,19 @@ function initComments() {
 
     if (error) {
       console.error('[Ryzen] Comments fetch error:', error.message, '| code:', error.code);
+      updateCommentsCountDisplay(0);
       return;
     }
-    if (!data || !data.length) return;
+    if (!data || !data.length) {
+      updateCommentsCountDisplay(0);
+      return;
+    }
+
+    updateCommentsCountDisplay(data.length);
 
     const rootContainer = document.createElement('div');
     rootContainer.className = 'comments-root';
-    hrLine.insertAdjacentElement('afterend', rootContainer);
+    commentsCountHeader.insertAdjacentElement('afterend', rootContainer);
 
     const rootComments = data.filter(c => !c.parent_id);
     rootComments.forEach(comment => {
@@ -482,6 +586,7 @@ function initComments() {
   function createCommentNode(comment, allComments) {
     const date = timeAgo(comment.created_at);
     const childCount = allComments.filter(c => c.parent_id === comment.id).length;
+    const avatarSrc = comment.avatar_url || myEllipse;
 
     const div = document.createElement('div');
     div.className = 'comment1';
@@ -489,7 +594,7 @@ function initComments() {
     div.innerHTML = `
       <div class="userCommentHeader">
         <div class="userPfp">
-          <img src="${myEllipse}" alt="PFP" class="pfp">
+          <img src="${avatarSrc}" alt="PFP" class="pfp" cursor:pointer; object-fit:cover;" title="Use this avatar">
           <div>
             <p class="userName">${escapeHtml(comment.name)}</p>
             <p class="date">${date}</p>
@@ -498,7 +603,7 @@ function initComments() {
       </div>
       <p class="comment-body">${parseRichText(comment.content)}</p>
       <div class="commentFooter" style="display:flex; gap:2rem; align-items:center; margin-bottom:0.75rem; font-family:Inconsolata;">
-        <button class="buttonDimension2 commentStarBtn" type="button" style="margin:0;">0</button>
+        <button class="buttonDimension2 commentStarBtn" type="button" style="margin:0;">${comment.likes_count || 0}</button>
         <button class="buttonDimension3" type="button" style="margin:0;">${childCount}</button>
         <button class="buttonDimension12 replyBtn" type="button" style="margin:0;">Reply</button>
       </div>
@@ -508,11 +613,20 @@ function initComments() {
     const repliesSection = div.querySelector('.replies-section');
     const replyBtn = div.querySelector('.replyBtn');
     const starBtn = div.querySelector('.commentStarBtn');
+    const pfpImg = div.querySelector('.userPfp .pfp');
 
-    let commentLikes = 0;
-    starBtn.addEventListener('click', () => {
-      commentLikes += 1;
-      starBtn.innerText = formatNumber(commentLikes);
+    // ⭐ Clicking a comment's PFP updates the main comment field selector and image!
+    if (pfpImg) {
+      pfpImg.addEventListener('click', () => {
+        mainAvatarSelector.setSelectedAvatar(avatarSrc);
+      });
+    }
+
+    // Save comment likes to DB
+    starBtn.addEventListener('click', async () => {
+      starBtn.innerText = '...';
+      const newCount = await incrementCommentLikes(comment.id);
+      starBtn.innerText = formatNumber(newCount);
       starBtn.classList.add('is-liked');
     });
 
@@ -536,6 +650,8 @@ function initComments() {
       inputWrapper.style.marginBottom = '1.5rem';
       inputWrapper.innerHTML = `
         <div class="commentFieldOuter">
+          <div class="reply-avatar-picker" style="padding-top:0.5rem; padding-left:0.5rem;"></div>
+          <input type="text" class="reply-name" placeholder="Your name" style="width:90%; padding:0.5rem; margin:0.5rem 0; font-family:Inconsolata; border:2px solid black; outline:none;">
           <textarea class="commentFieldInner" placeholder="////Type your comment here////" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" style="width:90%;"></textarea>
           <div class="footerCommentField">
             <div class="left">
@@ -552,6 +668,15 @@ function initComments() {
 
       repliesSection.insertBefore(inputWrapper, repliesSection.firstChild);
 
+      // Inject Avatar Selector in reply box
+      const replyAvatarSelector = createAvatarSelector(avatarSrc); // Default to parent comment's avatar
+      const replyAvatarPicker = inputWrapper.querySelector('.reply-avatar-picker');
+      replyAvatarPicker.appendChild(replyAvatarSelector);
+
+      // Pre-fill reply name if main name is filled
+      const replyNameInput = inputWrapper.querySelector('.reply-name');
+      if (nameInput?.value) replyNameInput.value = nameInput.value;
+
       const ta = inputWrapper.querySelector('textarea');
       ta.focus();
 
@@ -560,26 +685,32 @@ function initComments() {
 
       inputWrapper.querySelector('.reply-cancel').addEventListener('click', () => {
         inputWrapper.remove();
-        if (repliesSection.children.length === 0) repliesSection.style.display = 'none';
+        if (repliesSection.querySelectorAll('.comment1').length === 0 && !repliesSection.querySelector('.reply-input-wrapper')) {
+          repliesSection.style.display = 'none';
+        }
       });
 
       inputWrapper.querySelector('.reply-post').addEventListener('click', async () => {
         const text = ta.value.trim();
         if (!text) return;
 
-        const name = nameInput?.value || 'Guest';
+        const name = replyNameInput.value.trim() || nameInput?.value || 'Guest';
+        const avatarUrl = replyAvatarSelector.getSelectedAvatar();
+        
         const { error } = await supabase.from('comments').insert([{
           name,
           content: text,
           slug: currentSlug,
-          parent_id: comment.id
+          parent_id: comment.id,
+          avatar_url: avatarUrl
         }]);
 
         if (error) {
           console.error('[Ryzen] Reply post error:', error.message, '| code:', error.code);
           alert('Failed to post reply. See console for details.');
         } else {
-          location.reload();
+          bumpArticleCommentCount(1);
+          await loadComments();
         }
       });
     });
@@ -587,22 +718,28 @@ function initComments() {
     return div;
   }
 
+  // ─── POST TOP-LEVEL COMMENT ───
   postBtn.addEventListener('click', async () => {
     const text = mainTextarea?.value.trim();
     if (!text) return;
 
     const name = nameInput?.value || 'Guest';
+    const avatarUrl = mainAvatarSelector.getSelectedAvatar();
+
     const { error } = await supabase.from('comments').insert([{
       name,
       content: text,
-      slug: currentSlug
+      slug: currentSlug,
+      avatar_url: avatarUrl
     }]);
 
     if (error) {
       console.error('[Ryzen] Post comment error:', error.message, '| code:', error.code);
       alert('Failed to post comment. See console for details.');
     } else {
-      location.reload();
+      mainTextarea.value = '';
+      bumpArticleCommentCount(1);
+      await loadComments();
     }
   });
 
@@ -856,11 +993,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (menuBtn && sidebar) {
     menuBtn.addEventListener('click', () => {
-      // Toggles the sliding animation we set in SCSS
       sidebar.classList.toggle('active');
     });
 
-    // Close the sidebar if they click outside of it
     document.addEventListener('click', (e) => {
       if (!sidebar.contains(e.target) && !menuBtn.contains(e.target) && sidebar.classList.contains('active')) {
         sidebar.classList.remove('active');
