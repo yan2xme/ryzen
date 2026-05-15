@@ -954,7 +954,7 @@ function initTurntable() {
       syncMarquee();
 
       if (ttState.isPlaying) {
-        if (ttEls.status) ttEls.status.innerText = 'NOW PLAYING in Klent';
+        if (ttEls.status) ttEls.status.innerText = "NOW PLAYING on Klent's Spotify";
         if (!ttState.isDragging && ttEls.disc) ttEls.disc.classList.add('animate');
         updateTime(ttState.progressMs);
         startLiveTimer();
@@ -1040,3 +1040,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+function fitToTwoLines(el, minRem = 5, maxRem = 25) {
+  if (!el) return;
+
+  const step = 0.25;
+
+  // Temporarily set clean measurement styles
+  el.style.transition = 'none';
+  el.style.lineHeight = '1';
+  el.style.maxHeight = 'none';
+  el.style.overflow = 'visible';
+
+  // Binary search: find the BIGGEST font size that fits in exactly 2 lines
+  // This will GROW short text until it wraps, and SHRINK long text so it doesn't overflow
+  let lo = minRem, hi = maxRem, best = minRem;
+
+  while (hi - lo >= step) {
+    const mid = Math.round(((lo + hi) / 2) / step) * step;
+    el.style.fontSize = mid + 'rem';
+
+    const fs = parseFloat(getComputedStyle(el).fontSize);
+    const twoLineHeight = fs * 2;
+
+    if (el.scrollHeight <= twoLineHeight + 1) {
+      best = mid;       // fits in 2 lines, try BIGGER
+      lo = mid + step;
+    } else {
+      hi = mid - step;  // 3+ lines, go SMALLER
+    }
+  }
+
+  el.style.fontSize = best + 'rem';
+
+  // Restore original styles
+  el.style.lineHeight = '0.8';
+  el.style.maxHeight = '1.7em';
+  el.style.overflow = 'hidden';
+  el.style.transition = 'font-size 0.25s ease';
+}
+
+const songText = document.querySelector('.songText');
+
+document.fonts.ready.then(() => fitToTwoLines(songText));
+window.addEventListener('resize', () => fitToTwoLines(songText));

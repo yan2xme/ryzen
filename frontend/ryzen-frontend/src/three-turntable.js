@@ -15,7 +15,7 @@ let tonearmLoaded = false;
 const frustumSize = 2.2;
 
 const config = {
-  noteScale: 0.08, 
+  noteScale: 0.05, 
   scale: 0.22,
   pivotX: 0.88,
   pivotY: 0.89,

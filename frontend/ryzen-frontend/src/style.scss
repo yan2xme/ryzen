@@ -19,19 +19,22 @@
 .mobile-quick-links {
   display: none !important;
 }
-
 .songText {
   color: v.$greyText;
+  opacity: 0.5;
   display: block;
   text-align: center;
   font-family: Jaro;
   margin: 0;
   line-height: 0.8;
-  font-size: 68pt;
+  font-size: 6rem;
   min-height: 0.9em;
-  overflow-wrap: break-word;
-  hyphens: auto;
+  overflow-wrap: break-word;   /* breaks at spaces first, mid-word only if needed */
+  word-break: break-word;      /* ensures single words like "RUSS" can wrap when big */
   white-space: normal;
+  overflow: hidden;
+  max-height: 1.7em;           /* ~2 lines at 0.8 line-height */
+  transition: font-size 0.25s ease;
 }
 
 @mixin p {
@@ -370,7 +373,6 @@ div.layout-grid {
 .aboutMe {
   margin-top: 2rem;
 }
-
 
 div.layout-gridArticle {
   //THE MAIN
@@ -1060,10 +1062,9 @@ button.buttonDimension10 {
   .index {
     margin-top: -1rem;
   }
-    .aboutMe {
+  .aboutMe {
     margin-top: -1rem;
   }
-
 
   /* Hamburger Button */
   #mobileMenuBtn {
