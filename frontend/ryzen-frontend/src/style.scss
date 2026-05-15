@@ -191,7 +191,7 @@ button.buttonDimension3 {
 
 .buttonDimension4 {
   position: relative;
-  left: .6rem;
+  left: 0.6rem;
   align-content: center;
   @include buttonD(
     white,
@@ -363,6 +363,15 @@ div.layout-grid {
   @include lGrid(auto auto auto);
 }
 
+.index {
+  margin-top: 5rem;
+}
+
+.aboutMe {
+  margin-top: 2rem;
+}
+
+
 div.layout-gridArticle {
   //THE MAIN
   max-width: 100rem; // Or whatever your max design width is
@@ -386,7 +395,7 @@ main {
 }
 
 aside.left {
-  @include aside(6rem, -19.75rem);
+  @include aside(4.75rem, -19.75rem);
 }
 
 aside.left2 {
@@ -788,15 +797,15 @@ aside.right1 {
   overflow: hidden;
   box-sizing: border-box;
   padding: 1rem;
-  margin-top: 6rem;
+  margin-top: 5rem;
 }
 
 aside.right2 {
-  height: auto; /* Let it shrink to fit the text */
+  /* Let it shrink to fit the text */
   padding-bottom: 2rem;
   position: fixed;
-  margin-top: 30.275rem;
-  @include aside(v.$ryzenYellow, 21.875rem, 24rem);
+  margin-top: 29.275rem;
+  @include aside(v.$ryzenYellow, 21.875rem, 21.5rem);
 }
 
 @mixin overlay($mT, $mL, $pos, $z, $width, $height, $bgColor) {
@@ -1048,6 +1057,14 @@ button.buttonDimension10 {
     width: 100%;
   }
 
+  .index {
+    margin-top: -1rem;
+  }
+    .aboutMe {
+    margin-top: -1rem;
+  }
+
+
   /* Hamburger Button */
   #mobileMenuBtn {
     display: block !important;
@@ -1104,6 +1121,7 @@ button.buttonDimension10 {
   }
 
   main {
+    padding-top: 0rem;
     width: 100%;
     margin: 0;
     display: flex;
@@ -1371,7 +1389,6 @@ button.buttonDimension10 {
     left: 5rem !important; /* Pulls the text inward so it doesn't overlap the X */
   }
 }
-
 
 .rightSide a h1 {
   transition: all 0.2s ease;
