@@ -42,34 +42,8 @@
   </head>
 
   <body>
-    <div
-      id="brutal-loader"
-      style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #fff8a4;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        transition: opacity 0.6s ease-out;
-      "
-    >
-      <h1
-        style="
-          font-family: &quot;Inconsolata&quot;, sans-serif;
-          font-size: 3rem;
-          color: black;
-          margin-bottom: 10px;
-          margin-top: 0;
-        "
-      >
-        system booting...
-      </h1>
+    <div id="brutal-loader">
+      <h1 class="boot">system booting...</h1>
       <div
         style="
           width: 250px;
@@ -89,19 +63,7 @@
           "
         ></div>
       </div>
-      <p
-        id="loader-percent"
-        style="
-          font-family: &quot;Inconsolata&quot;, monospace;
-          font-weight: bold;
-          font-size: 1.5rem;
-          color: black;
-          margin-top: 15px;
-          margin-bottom: 0;
-        "
-      >
-        [ 0% ]
-      </p>
+      <p id="loader-percent">[ 0% ]</p>
     </div>
 
     <div class="overlayEffect"></div>
@@ -131,7 +93,7 @@
           </div>
         </aside>
 
-          <div class="mobile-quick-links" style="padding: 2rem">
+        <div class="mobile-quick-links" style="padding: 2rem">
           <h1 class="quickLinks" style="padding: 0; margin-bottom: 1rem">
             QUICK LINKS
           </h1>
@@ -174,71 +136,61 @@
             </p>
           </div>
         </div>
-
       </div>
 
       <main class="index">
-        <button
-          id="mobileMenuBtn"
-          class="neoBrutal2"
-          style="
-            display: none;
-            position: fixed;
-            top: 1.25rem;
-            right: 2.5rem;
-            z-index: 1001;
-            padding: 0.5rem 1rem;
-            background: #fff8a4;
-            font-size: 1.5rem;
-            border: none;
-            cursor: pointer;
-            border-radius: 0;
-          "
-        >
-          ☰
-        </button>
+        <button id="mobileMenuBtn" class="neoBrutal2 btnStyleMobile">☰</button>
 
-        <article
-          class="outer neoBrutal"
-          style="height: auto; padding-bottom: 2rem"
-        >
-          <h1 class="indicator">INDEX</h1>
-          <h1
-            class="tt"
-            style="line-height: 1.1; margin-bottom: 1.5rem; margin-top: 0.5rem"
-          >
-            I build systems,<br />fix tech, and keep<br />operations running.
+        <article class="outer neoBrutal indexCard">
+          <h1 class="indicator">Home</h1>
+
+          <h1 class="hook">
+            Engineering <br />
+            creative <br />
+            solutions
           </h1>
+          <p>to streamline your operational chaos.</p>
+          <br />
+
           <hr class="articleLine" />
 
-          <div
-            style="
-              font-family: &quot;Inconsolata&quot;, monospace;
-              font-size: 1.1rem;
-              line-height: 1.6;
-              padding-top: 1.5rem;
-            "
-          >
+          <div class="intro">
             <p>
-              Hi, I’m Klent. I’m a Technical Virtual Assistant and Developer. I
-              help founders and businesses untangle their backend chaos.
+              Hello, <strong>I am Klent Czarwen C. Tangaro</strong>. Operating as a <strong>
+              Virtual Assistant</strong> and a <strong>Web Developer</strong> for your business's pressing
+              needs. From minute adjustments of the frontend code to polishing
+              digital assets, I can handle the repetitive technical tasks so you
+              can focus on what really matters: <strong>the BIG picture.</strong>
             </p>
             <br />
 
             <p><strong>Core Capabilities:</strong></p>
             <ul style="padding-left: 1.5rem; margin-top: 0.5rem">
               <li>
-                <strong>Technical Troubleshooting:</strong> Website maintenance,
-                frontend fixes (Vite, React, SCSS), and system audits.
+                <strong>Technical Support & Maintenance:</strong> I manage site
+                updates and troubleshoot frontend bugs
+                <strong>(UI/UX through SCSS, Vanilla JS, and Figma)</strong>, to
+                ensure the cohesiveness of your digital infrastructure.
               </li>
               <li style="margin-top: 0.5rem">
-                <strong>Operations Management:</strong> Cross-team
-                communication, schedule coordination, and project lifecycle
-                tracking.
+                <strong>Creative Micro-Tasks:</strong> I handle small editing
+                tasks in
+                <strong>Photoshop, Premiere Pro, Canva, and Figma</strong>,
+                whether thumbnails or quick social media reels, to keep your
+                brand content flow consistent and on time.
               </li>
               <li style="margin-top: 0.5rem">
-                <strong>System Setup:</strong> Connecting tools, managing
-                databases (Supabase), and deploying headless CMS (Sanity).
+                <strong>Operations Management:</strong> Drawing on my past
+                experience as a <i>Computer Science Class President</i> at
+                <strong> Ateneo de Davao University</strong>, I exercise
+                effective communication and scheduling skills within a very
+                hectic academic environment.
+              </li>
+              <li style="margin-top: 0.5rem">
+                <strong>System Integrationt:</strong> I employ industry-standard
+                tools like <strong> Sanity CMS</strong> and <strong>Supabase</strong> to streamline content
+                management for your website, in the same vein as this website
+                you're currently looking at.
               </li>
             </ul>
             <br />
