@@ -300,7 +300,7 @@ function initHomepage() {
             </div>
             <img class="articleImg" src="${imageUrl}" alt="${escapeHtml(post.title)}" />
             <footer>
-              <img src="public/image.png" alt="Profile Picture" class="pfp" />
+              <img src="/image.png" alt="Profile Picture" class="pfp" />
               <p class="footerText">Klent Tangaro</p>
               <div class="butts">
                 <button class="buttonDimension2 like-outer" type="button">${formatNumber(likes)}</button>
