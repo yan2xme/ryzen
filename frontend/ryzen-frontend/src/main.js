@@ -595,7 +595,7 @@ function initComments() {
     div.innerHTML = `
       <div class="userCommentHeader">
         <div class="userPfp">
-          <img src="${avatarSrc}" alt="PFP" class="pfp" style="cursor:pointer; object-fit:cover;" title="Use this avatar">
+          <img src="/image.png" alt="PFP" class="pfp" style="cursor:pointer; object-fit:cover;" title="Use this avatar">
           <div>
             <p class="userName">${escapeHtml(comment.name)}</p>
             <p class="date">${date}</p>
