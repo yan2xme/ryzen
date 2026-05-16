@@ -896,6 +896,14 @@ aside.right2 {
   height: 48.125rem;
 }
 
+.klentstar {
+  position: absolute;
+  z-index: 10;
+  right: -11.5rem;
+  top: -3.5rem;
+  width: 45.5rem;
+}
+
 .storyHeader {
   position: absolute;
   width: 31.25rem;
@@ -1051,6 +1059,14 @@ button.buttonDimension10 {
    MOBILE RESPONSIVENESS (PHONES & TABLETS)
    ───────────────────────────────────────── */
 @media (max-width: 900px) {
+  .klentstar {
+  position: absolute;
+  z-index: 10;
+  right: -11.5rem;
+  top: 2.5rem;
+  width: 30.5rem;
+}
+
   /* Prevent horizontal scrolling and zoom issues */
   body,
   html {
@@ -1216,7 +1232,7 @@ button.buttonDimension10 {
     display: block;
   }
 
-  .buttonDimension4{
+  .buttonDimension4 {
     left: 0.6rem;
   }
 
@@ -1420,6 +1436,7 @@ button.buttonDimension10 {
 }
 
 article.indexCard {
+  position: relative;
   height: auto;
   padding-bottom: 2rem;
 }
