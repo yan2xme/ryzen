@@ -445,7 +445,7 @@ function initArticlePage() {
           <h1 class="tt">${escapeHtml(result.title)}</h1>
           <p>Yapped on: ${result.datePosted}</p>
           <br><hr class="articleLine" /><br>
-          <img class="articleImg" src="${imageUrl}" alt="${escapeHtml(result.title)}" />
+          <img class="articleImgInner" src="${imageUrl}" alt="${escapeHtml(result.title)}" />
           <footer class="articleInside">
             <img src="/image.png" alt="Profile Picture" class="pfp" />
             <p class="footerText">Klent Tangaro</p>

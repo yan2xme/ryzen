@@ -589,6 +589,8 @@ div.storyContainer {
 }
 
 .story {
+  display: inline-block;
+  padding-right: 1.5rem;
   width: 6.25rem;
   height: 6.25rem;
 }
@@ -598,6 +600,7 @@ div.storyContainer {
 }
 
 .pol {
+  object-fit: cover;
   margin-right: 10px;
   display: inline-block;
   background-color: rgb(0, 0, 0);
@@ -716,6 +719,13 @@ article.inside {
   border: none;
 }
 
+.links {
+  font-size: 12px;
+  margin-top: -5px;
+  margin-bottom: 15px;
+  color: #555;
+}
+
 .articleLine {
   @include commentStyle(0, 0, 0, 0, 95%, 0.325rem);
 }
@@ -728,11 +738,19 @@ article.inside {
   @include commentStyle(-2rem, -2rem, 0, 0, 2%, 1rem);
 }
 
-.articleImg {
+@mixin articleImg($height) {
   object-fit: cover;
   padding-top: 1rem;
   width: 97%;
-  height: 15rem;
+  height: $height;
+}
+
+.articleImg {
+  @include articleImg(15rem);
+}
+
+.articleImgInner {
+  @include articleImg(23rem);
 }
 
 @mixin footer($pT, $pL, $width) {
@@ -1060,16 +1078,16 @@ button.buttonDimension10 {
    ───────────────────────────────────────── */
 @media (max-width: 900px) {
   .klentstar {
-  position: absolute;
-  z-index: 10;
-  left: -3.5rem;
-  top: 1.5rem;
-  width: 35.5rem;
-}
+    position: absolute;
+    z-index: 10;
+    left: -3.5rem;
+    top: 1.5rem;
+    width: 35.5rem;
+  }
 
-.hook{
-  padding-top: 16rem;
-}
+  .hook {
+    padding-top: 16rem;
+  }
 
   /* Prevent horizontal scrolling and zoom issues */
   body,
