@@ -1062,9 +1062,13 @@ button.buttonDimension10 {
   .klentstar {
   position: absolute;
   z-index: 10;
-  right: -11.5rem;
-  top: 4.5rem;
-  width: 28.5rem;
+  left: -2.0rem;
+  top: 1.5rem;
+  width: 35.5rem;
+}
+
+.hook{
+  padding-top: 16rem;
 }
 
   /* Prevent horizontal scrolling and zoom issues */
