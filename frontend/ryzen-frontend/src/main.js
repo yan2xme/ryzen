@@ -296,7 +296,7 @@ function initHomepage() {
             </div>
             <img class="articleImg" src="${imageUrl}" alt="${escapeHtml(post.title)}" />
             <footer>
-              <img src="${myEllipse}" alt="Profile Picture" class="pfp" />
+              <img src="public/image.png" alt="Profile Picture" class="pfp" />
               <p class="footerText">Klent Tangaro</p>
               <div class="butts">
                 <button class="buttonDimension2 like-outer" type="button">${formatNumber(likes)}</button>
@@ -390,7 +390,7 @@ function openStoryOverlay(story, imageUrl) {
   overlay.innerHTML = `
     <div class="storyContentOverlay neoBrutal">
       <div class="storyHeader">
-        <div class="storyProfile"><img src="${myEllipse}" alt="Profile" /></div>
+        <div class="storyProfile"><img src="/image.png" alt="Profile" /></div>
         <button class="closeStory" aria-label="Close story"></button>
         <div class="storyFont">Klent Tangaro</div>
         <div class="storyFont2">${timeAgo(story.datePosted)} • ${formattedDate}</div>
@@ -443,7 +443,7 @@ function initArticlePage() {
           <br><hr class="articleLine" /><br>
           <img class="articleImg" src="${imageUrl}" alt="${escapeHtml(result.title)}" />
           <footer class="articleInside">
-            <img src="${myEllipse}" alt="Profile Picture" class="pfp" />
+            <img src="/image.png" alt="Profile Picture" class="pfp" />
             <p class="footerText">Klent Tangaro</p>
             <div class="butts2">
               <button class="buttonDimension2 likeBtn" type="button">${formatNumber(globalLikes)}</button>

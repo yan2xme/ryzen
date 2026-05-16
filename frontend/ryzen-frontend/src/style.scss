@@ -194,7 +194,6 @@ button.buttonDimension3 {
 
 .buttonDimension4 {
   position: relative;
-  left: 0.6rem;
   align-content: center;
   @include buttonD(
     white,
@@ -1215,6 +1214,10 @@ button.buttonDimension10 {
   }
   div.stories-grid {
     display: block;
+  }
+
+  .buttonDimension4{
+    left: 0.6rem;
   }
 
   /* ─── DRAWER (REDDIT SIDEBAR) ─── */
