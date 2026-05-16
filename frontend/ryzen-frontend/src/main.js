@@ -4,6 +4,10 @@ import myEllipse from './assets/Ellipse.png';
 import gradient from './assets/linearGradient.svg';
 import { initThreeTurntable, updatePlayback } from './three-turntable.js';
 import { createClient } from '@supabase/supabase-js'
+import { inject } from '@vercel/analytics'
+
+// Initialize Vercel Web Analytics
+inject();
 
 // ─────────────────────────────────────────
 // CONFIGURATION
