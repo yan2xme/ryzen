@@ -609,6 +609,15 @@ div.storyContainer {
   clip-path: polygon(v.$polygon);
 }
 
+.collage{
+  z-index: 10;
+  top: 3rem;
+  right:32rem;
+  position: absolute;
+  width: 14rem;
+
+}
+
 .attributes {
   position: absolute;
   bottom: 0;
@@ -1084,6 +1093,15 @@ button.buttonDimension10 {
     top: 1.5rem;
     width: 35.5rem;
   }
+
+  .collage{
+  z-index: 10;
+  top: 5rem;
+  right:-1rem;
+  position: absolute;
+  width: 12rem;
+
+}
 
   .hook {
     padding-top: 16rem;

@@ -34,7 +34,7 @@ const currentSlug = urlParams.get('slug');
 // UTILITIES
 // ─────────────────────────────────────────
 const avatarOptions = [
-  myEllipse, // Your profile picture is the default first option!
+  myEllipse,
   'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix',
   'https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka',
   'https://api.dicebear.com/7.x/adventurer/svg?seed=Buster',
@@ -46,15 +46,15 @@ function createAvatarSelector(defaultSrc = avatarOptions[0], onChangeCallback = 
   const container = document.createElement('div');
   container.className = 'avatar-selector';
   container.style.cssText = 'display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center;';
-  
+
   let currentSelectedSrc = defaultSrc;
 
   avatarOptions.forEach(url => {
     const img = document.createElement('img');
     img.src = url;
-    img.dataset.avatarUrl = url; 
+    img.dataset.avatarUrl = url;
     img.style.cssText = `width:32px; height:32px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border 0.2s; object-fit:cover;`;
-    
+
     if (url === defaultSrc) img.style.borderColor = 'black';
 
     img.addEventListener('click', () => {
@@ -68,7 +68,7 @@ function createAvatarSelector(defaultSrc = avatarOptions[0], onChangeCallback = 
   });
 
   container.getSelectedAvatar = () => currentSelectedSrc;
-  
+
   container.setSelectedAvatar = (url) => {
     currentSelectedSrc = url;
     container.querySelectorAll('img').forEach(img => {
@@ -265,6 +265,7 @@ function initHomepage() {
     });
   }
 
+
   if (!feedContainer && !storyContainer) return;
 
   async function fetchPosts(queryStr) {
@@ -371,6 +372,8 @@ function initHomepage() {
     })
     .catch(error => console.error("[Ryzen] Story fetch failed:", error));
 }
+
+
 
 function openStoryOverlay(story, imageUrl) {
   const overlay = document.querySelector(".overlayEffect");
@@ -667,7 +670,7 @@ function initComments() {
 
       repliesSection.insertBefore(inputWrapper, repliesSection.firstChild);
 
-      const replyAvatarSelector = createAvatarSelector(avatarSrc); 
+      const replyAvatarSelector = createAvatarSelector(avatarSrc);
       const replyAvatarPicker = inputWrapper.querySelector('.reply-avatar-picker');
       replyAvatarPicker.appendChild(replyAvatarSelector);
 
@@ -693,7 +696,7 @@ function initComments() {
 
         const name = replyNameInput.value.trim() || nameInput?.value || 'Guest';
         const avatarUrl = replyAvatarSelector.getSelectedAvatar();
-        
+
         const { error } = await supabase.from('comments').insert([{
           name,
           content: text,
@@ -788,7 +791,7 @@ function initTurntable() {
   function audioAnimLoop() {
     if (!audioPlayer.paused && audioPlayer.duration && isFinite(audioPlayer.duration)) {
       const timeLeft = audioPlayer.duration - audioPlayer.currentTime;
-      
+
       if (timeLeft <= FADE_DURATION && timeLeft > 0 && fadeInStart === null) {
         // Fade out smoothly near the end
         audioPlayer.volume = Math.max(0, (timeLeft / FADE_DURATION) * MAX_VOLUME);
@@ -934,6 +937,27 @@ function initTurntable() {
     });
   }
 
+  // ─── SPOTIFY CACHE HELPERS ───
+  const SPOTIFY_CACHE_KEY = 'ryzen_spotify_history';
+
+  function saveSpotifyCache(entry) {
+    entry.cachedAt = entry.cachedAt || new Date().toISOString();
+    if (!entry.lastSeenPlaying) {
+      entry.lastSeenPlaying = entry.cachedAt;
+    }
+    try {
+      localStorage.setItem(SPOTIFY_CACHE_KEY, JSON.stringify(entry));
+    } catch (e) { /* storage full or unavailable */ }
+  }
+
+  function loadSpotifyCache() {
+    try {
+      const raw = localStorage.getItem(SPOTIFY_CACHE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
   async function syncTurntable() {
     if (!ttEls.song) return;
 
@@ -942,12 +966,60 @@ function initTurntable() {
     try {
       const res = await fetch('/api/spotify');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      let data = await res.json();
+
+      const hasRealTrack = data.title && data.title !== 'Silence' && data.artist && data.artist !== 'No History';
+
+      // ─── CACHE LOGIC ───
+      if (data.isPlaying || hasRealTrack) {
+        // API gave us a real track (playing, paused, or recently-played).
+        // Cache it with a timestamp so "PLAYED Xm AGO" works later.
+        saveSpotifyCache({
+          title: data.title,
+          artist: data.artist,
+          album: data.album,
+          albumImageUrl: data.albumImageUrl,
+          previewUrl: data.previewUrl,
+          // Use the API's playedAt if present; otherwise stamp as now.
+          lastSeenPlaying: data.playedAt || new Date().toISOString(),
+        });
+      } else if (!data.isPlaying && !hasRealTrack) {
+        // API returned "No History" — restore last known track from cache
+        const cached = loadSpotifyCache();
+        if (cached) {
+          // ─── MIGRATE OLD CACHE ───
+          // Old code wrote cache without any timestamps. Patch it now.
+          if (!cached.cachedAt && !cached.lastSeenPlaying) {
+            cached.lastSeenPlaying = new Date().toISOString();
+            cached.cachedAt = cached.lastSeenPlaying;
+            saveSpotifyCache(cached);
+          }
+
+          data.title = cached.title;
+          data.artist = cached.artist;
+          data.album = cached.album;
+          data.albumImageUrl = cached.albumImageUrl;
+          data.previewUrl = cached.previewUrl;
+          // Priority: lastSeenPlaying > playedAt > cachedAt
+          data.playedAt = cached.lastSeenPlaying || cached.playedAt || cached.cachedAt || null;
+        }
+      }
+
+      // ─── CRITICAL FIX ───
+      // When a song is PAUSED the /api/spotify currently-playing branch
+      // returns { isPlaying: false, artist: "..." } with NO playedAt.
+      // We still have a real track though, so fall back to the cache's
+      // lastSeenPlaying (which we just saved above) or use now.
+      if (!data.isPlaying && hasRealTrack && !data.playedAt) {
+        const cached = loadSpotifyCache();
+        data.playedAt = cached?.lastSeenPlaying || new Date().toISOString();
+      }
 
       ttEls.song.innerText = data.title || 'Unknown';
       ttEls.artist.innerText = data.artist || 'Unknown';
       ttEls.bigText.innerText = (data.artist || 'SILENCE').toUpperCase();
-      if (data.album) ttEls.album.innerText = data.album;
+
+      ttEls.album.innerText = data.album || '';
       if (ttEls.albumArt) ttEls.albumArt.src = data.albumImageUrl || './src/assets/albumArt.jpg';
 
       ttState.isPlaying = !!data.isPlaying;
@@ -969,10 +1041,19 @@ function initTurntable() {
         if (ttEls.time) ttEls.time.innerText = '--:--';
         syncAudio(null, false);
 
+        // ─── STATUS: "PLAYED Xm AGO" ───
         if (data.playedAt) {
           const diffMin = Math.floor((Date.now() - new Date(data.playedAt)) / 60000);
           if (ttEls.status) {
-            ttEls.status.innerText = diffMin < 60 ? `PLAYED ${diffMin}M AGO` : `PLAYED ${Math.floor(diffMin / 60)}H AGO`;
+            if (diffMin < 1) {
+              ttEls.status.innerText = 'PLAYED JUST NOW';
+            } else if (diffMin < 60) {
+              ttEls.status.innerText = `PLAYED ${diffMin}M AGO`;
+            } else if (diffMin < 1440) {
+              ttEls.status.innerText = `PLAYED ${Math.floor(diffMin / 60)}H AGO`;
+            } else {
+              ttEls.status.innerText = 'SILENCE';
+            }
           }
         } else {
           if (ttEls.status) ttEls.status.innerText = 'SILENCE';
@@ -994,7 +1075,7 @@ function initTurntable() {
     const song = ttEls.song.innerText || 'Unknown';
     const album = ttEls.album.innerText || '';
     const separator = '<p> • </p>';
-    const copy = `<p class="artist">${artist}</p>${separator}<p class="name">${song}</p>${separator}<p class="albumName">${album}</p>${separator}`;
+    const copy = `<p class="artist">${artist}</p>${separator}<p class="name">${song}</p>${album ? separator + '<p class="albumName">' + album + '</p>' : ''}${separator}`;
     content.innerHTML = copy + copy;
   }
 }
@@ -1017,7 +1098,7 @@ function initTyped() {
 }
 
 // ─────────────────────────────────────────
-// BOOTSTRAP
+// BOOTSTRAP & HISTORY ROUTING
 // ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initTyped();
@@ -1025,6 +1106,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initHomepage();
   initArticlePage();
   initComments();
+
+  // ─── BROWSER HISTORY ROUTING FOR STORIES ───
+  // This ensures the browser "Back" button closes the story overlay instead of breaking
+  window.addEventListener('popstate', () => {
+    const overlay = document.querySelector(".overlayEffect");
+    if (overlay && overlay.classList.contains("active")) {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get('story')) {
+        overlay.classList.remove("active");
+      }
+    }
+  });
 });
 
 // ─── MOBILE SIDEBAR TOGGLE ───
@@ -1057,7 +1150,6 @@ function fitToTwoLines(el, minRem = 5, maxRem = 25) {
   el.style.overflow = 'visible';
 
   // Binary search: find the BIGGEST font size that fits in exactly 2 lines
-  // This will GROW short text until it wraps, and SHRINK long text so it doesn't overflow
   let lo = minRem, hi = maxRem, best = minRem;
 
   while (hi - lo >= step) {
@@ -1068,10 +1160,10 @@ function fitToTwoLines(el, minRem = 5, maxRem = 25) {
     const twoLineHeight = fs * 2;
 
     if (el.scrollHeight <= twoLineHeight + 1) {
-      best = mid;       // fits in 2 lines, try BIGGER
+      best = mid;
       lo = mid + step;
     } else {
-      hi = mid - step;  // 3+ lines, go SMALLER
+      hi = mid - step;
     }
   }
 

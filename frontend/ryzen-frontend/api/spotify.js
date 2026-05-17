@@ -82,6 +82,14 @@ export default async function handler(req, res) {
         const artistStr = song.item.artists.map(a => a.name).join(' ');
         const previewUrl = await findPreview(artistStr, song.item.name);
 
+        // ─── FIX: Include playedAt for paused tracks ───
+        // When a song is paused (is_playing: false), we still have track info
+        // but no playedAt from Spotify. Use current time so the frontend can
+        // show "PLAYED JUST NOW" instead of falling through to "SILENCE".
+        const playedAt = song.is_playing
+          ? new Date().toISOString()
+          : new Date(Date.now() - (song.progress_ms || 0)).toISOString();
+
         return res.status(200).json({
           isPlaying: song.is_playing ?? true,
           title: song.item.name,
@@ -91,6 +99,7 @@ export default async function handler(req, res) {
           progressMs: song.progress_ms || 0,
           durationMs: song.item.duration_ms || 0,
           previewUrl,
+          playedAt,
         });
       }
     }
@@ -121,7 +130,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       isPlaying: false, title: 'Silence', artist: 'No History',
-      album: '', albumImageUrl: '', previewUrl: null,
+      album: '', albumImageUrl: '', previewUrl: null, playedAt: null,
     });
 
   } catch (err) {
