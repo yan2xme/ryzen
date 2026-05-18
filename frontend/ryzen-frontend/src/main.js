@@ -1088,7 +1088,16 @@ function initTyped() {
   if (!typedEl) return;
 
   new Typed('#typed', {
-    strings: ['student', 'coder', 'noise-maker'],
+    strings: [
+      'noise-maker',
+      'matcha brewer',
+      'manual exposure dialer',
+      'pixel pusher',
+      'guitarist',
+      'film photographer',
+      'logic',
+      'openness'
+    ],
     typeSpeed: 200,
     backSpeed: 50,
     showCursor: true,
