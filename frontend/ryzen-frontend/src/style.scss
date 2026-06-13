@@ -345,8 +345,12 @@ p.body::first-letter {
   margin-right: 9px;
 }
 
+p.body{
+  padding-right: 2rem;
+}
+
 p.content {
-  text-indent: 2rem;
+  text-indent: 5rem;
 }
 
 @mixin lGrid($gridTemplate) {

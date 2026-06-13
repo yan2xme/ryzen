@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee Order System — Full Architecture</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f0f0f;color:#e5e5e5;padding:1.5rem;line-height:1.6;max-width:800px}
+h1{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.sub{font-size:12px;color:#666;margin-bottom:2rem}
+h2{font-size:14px;font-weight:600;color:#fff;margin:2rem 0 .5rem;padding-bottom:6px;border-bottom:1px solid #222}
+h3{font-size:12px;font-weight:600;color:#aaa;margin:1.2rem 0 .4rem;text-transform:uppercase;letter-spacing:.05em}
+p{font-size:12px;color:#999;margin-bottom:.75rem;line-height:1.7}
+strong{color:#e5e5e5}
+pre{font-family:'Fira Code',monospace;font-size:11px;background:#111;border:1px solid #222;border-radius:8px;padding:12px;margin:8px 0 16px;line-height:1.8;white-space:pre-wrap;word-break:break-all;color:#a8ff78}
+.ok{background:#052e16;color:#4ade80;font-size:11px;padding:8px 12px;border-radius:8px;margin:8px 0 12px;line-height:1.6}
+.warn{background:#2d1a00;color:#f59e0b;font-size:11px;padding:8px 12px;border-radius:8px;margin:8px 0 12px;line-height:1.6}
+.info{background:#0c1a2e;color:#60a5fa;font-size:11px;padding:8px 12px;border-radius:8px;margin:8px 0 12px;line-height:1.6}
+.danger{background:#1f0505;color:#f87171;font-size:11px;padding:8px 12px;border-radius:8px;margin:8px 0 12px;line-height:1.6}
+
+/* Architecture diagram */
+.arch{display:grid;grid-template-columns:1fr 80px 1fr 80px 1fr;gap:0;align-items:center;margin:1.5rem 0}
+.arch-box{background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:.8rem;text-align:center}
+.arch-box.messenger{border-color:#0084ff;background:#001a33}
+.arch-box.server{border-color:#a78bfa;background:#1a0a2e}
+.arch-box.db{border-color:#4ade80;background:#052e16}
+.arch-box.admin{border-color:#f59e0b;background:#2d1a00}
+.arch-title{font-size:11px;font-weight:600;margin-bottom:3px}
+.arch-sub{font-size:10px;color:#666;line-height:1.4}
+.messenger .arch-title{color:#60a5fa}
+.server .arch-title{color:#a78bfa}
+.db .arch-title{color:#4ade80}
+.admin .arch-title{color:#f59e0b}
+.arrow{text-align:center;font-size:18px;color:#444}
+
+/* Feature table */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0}
+.feat-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:.9rem}
+.feat-box h4{font-size:11px;font-weight:600;margin-bottom:8px}
+.feat-box li{font-size:11px;color:#999;line-height:1.8;list-style:none;padding-left:14px;position:relative}
+.feat-box li::before{content:"→";position:absolute;left:0;color:#555}
+.feat-box.bot h4{color:#60a5fa}
+.feat-box.admin h4{color:#f59e0b}
+.feat-box.db h4{color:#4ade80}
+.feat-box.api h4{color:#a78bfa}
+
+/* Database schema */
+.table{background:#111;border:1px solid #222;border-radius:8px;overflow:hidden;margin:8px 0 16px;font-size:11px}
+.table-header{background:#1a1a1a;padding:6px 12px;font-weight:600;color:#fff;font-size:11px;display:flex;justify-content:space-between}
+.table-row{display:grid;padding:5px 12px;border-top:1px solid #1a1a1a;align-items:center}
+.table-row.orders{grid-template-columns:140px 100px 1fr}
+.table-row.config{grid-template-columns:140px 100px 1fr}
+.col-name{color:#82aaff;font-family:monospace}
+.col-type{color:#c792ea;font-family:monospace}
+.col-note{color:#546e7a}
+.pk{font-size:9px;background:#2d1a00;color:#f59e0b;padding:1px 4px;border-radius:3px;margin-left:4px}
+.fk{font-size:9px;background:#0c1a2e;color:#60a5fa;padding:1px 4px;border-radius:3px;margin-left:4px}
+
+/* Phase timeline */
+.phase{border-left:3px solid #333;padding-left:14px;margin-bottom:20px}
+.phase.p1{border-color:#60a5fa}
+.phase.p2{border-color:#a78bfa}
+.phase.p3{border-color:#4ade80}
+.phase.p4{border-color:#f59e0b}
+.phase.p5{border-color:#f87171}
+.phase-label{font-size:10px;font-weight:600;margin-bottom:3px}
+.p1 .phase-label{color:#60a5fa}
+.p2 .phase-label{color:#a78bfa}
+.p3 .phase-label{color:#4ade80}
+.p4 .phase-label{color:#f59e0b}
+.p5 .phase-label{color:#f87171}
+.phase-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:5px}
+.phase ul{padding:0;margin:0}
+.phase li{font-size:11px;color:#999;line-height:1.8;list-style:none;padding-left:16px;position:relative}
+.phase li::before{content:"□ ";position:absolute;left:0;color:#444}
+.phase li.done::before{content:"✓ ";color:#4ade80}
+
+/* API routes */
+.route-table{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0 16px}
+.route-table th{text-align:left;padding:6px 8px;background:#1a1a1a;color:#999;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.route-table td{padding:6px 8px;border-top:1px solid #1a1a1a;vertical-align:top}
+.method{font-family:monospace;font-weight:600;font-size:11px;padding:2px 6px;border-radius:4px}
+.get{background:#052e16;color:#4ade80}
+.post{background:#0c1a2e;color:#60a5fa}
+.patch{background:#2d1a00;color:#f59e0b}
+.route-path{font-family:monospace;color:#e5e5e5;font-size:11px}
+.route-desc{color:#999}
+.route-who{font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.who-bot{background:#001a33;color:#60a5fa}
+.who-admin{background:#2d1a00;color:#f59e0b}
+.who-pub{background:#1a1a1a;color:#666}
+
+.divider{border:none;border-top:1px solid #1a1a1a;margin:2rem 0}
+
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0}
+.scope-box{border-radius:10px;padding:.8rem}
+.scope-in{background:#052e16;border:1px solid #166534}
+.scope-out{background:#1f0505;border:1px solid #7f1d1d}
+.scope-in h4{color:#4ade80;font-size:11px;font-weight:600;margin-bottom:6px}
+.scope-out h4{color:#f87171;font-size:11px;font-weight:600;margin-bottom:6px}
+.scope-box li{font-size:11px;color:#aaa;line-height:1.8;list-style:none;padding-left:14px;position:relative}
+.scope-in li::before{content:"✓";position:absolute;left:0;color:#4ade80}
+.scope-out li::before{content:"✗";position:absolute;left:0;color:#f87171}
+
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:6px;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>Coffee Order System — Full Architecture</h1>
+<p class="sub">Three connected systems. One Express server. One database. Shipped by June 29.</p>
+
+<!-- ARCHITECTURE OVERVIEW -->
+<h2>How the three systems connect</h2>
+
+<div class="arch">
+  <div class="arch-box messenger">
+    <div class="arch-title">Messenger Bot</div>
+    <div class="arch-sub">Customer-facing<br>Collects orders<br>Sends confirmations<br>Reports sold out</div>
+  </div>
+  <div class="arrow">⟷</div>
+  <div class="arch-box server">
+    <div class="arch-title">Express Server</div>
+    <div class="arch-sub">Single backend<br>Handles webhooks<br>Serves API routes<br>Business logic</div>
+  </div>
+  <div class="arrow">⟷</div>
+  <div class="arch-box db">
+    <div class="arch-title">Supabase (Postgres)</div>
+    <div class="arch-sub">Orders table<br>Config table<br>Single source<br>of truth</div>
+  </div>
+</div>
+<div style="text-align:center;font-size:24px;color:#444;margin:4px 0">↕</div>
+<div style="max-width:200px;margin:0 auto 1rem">
+  <div class="arch-box admin" style="margin:0 auto">
+    <div class="arch-title">Admin Dashboard</div>
+    <div class="arch-sub">Your private web UI<br>View + manage orders<br>Set daily limit<br>Update statuses</div>
+  </div>
+</div>
+
+<div class="info">One Express server handles everything — the Messenger webhook AND the API that your admin dashboard talks to. No separate servers. No microservices. Keep it simple.</div>
+
+<!-- FEATURES PER SYSTEM -->
+<h2>What each system does</h2>
+<div class="feat-grid">
+  <div class="feat-box bot">
+    <h4>🤖 Messenger Bot</h4>
+    <ul>
+      <li>State machine order flow</li>
+      <li>Drink / milk / sweetness / building</li>
+      <li>Order confirmation with number</li>
+      <li>Check if daily limit is hit → auto-reject</li>
+      <li>"cancel" command resets session</li>
+      <li>Announce pickup open (manual trigger)</li>
+    </ul>
+  </div>
+  <div class="feat-box admin">
+    <h4>🖥️ Admin Dashboard (you only)</h4>
+    <ul>
+      <li>Today's order list — name, drink, building</li>
+      <li>Mark order: pending → ready → done</li>
+      <li>Mark order: cancelled</li>
+      <li>Set daily order limit (e.g. max 15 today)</li>
+      <li>Toggle accepting orders on/off</li>
+      <li>See daily revenue + profit estimate</li>
+    </ul>
+  </div>
+  <div class="feat-box db">
+    <h4>🗄️ Database</h4>
+    <ul>
+      <li>Persist all orders permanently</li>
+      <li>Store config (limit, accepting orders)</li>
+      <li>Query by date for daily view</li>
+      <li>Track status per order</li>
+    </ul>
+  </div>
+  <div class="feat-box api">
+    <h4>🔌 API Layer (Express routes)</h4>
+    <ul>
+      <li>POST /webhook — Messenger events</li>
+      <li>GET /webhook — verification</li>
+      <li>GET /api/orders/today</li>
+      <li>PATCH /api/orders/:id/status</li>
+      <li>GET /api/config</li>
+      <li>PATCH /api/config</li>
+    </ul>
+  </div>
+</div>
+
+<!-- DATABASE SCHEMA -->
+<h2>Database schema — two tables, that's it</h2>
+
+<div class="table">
+  <div class="table-header">
+    <span>orders</span>
+    <span style="color:#666;font-weight:400">one row per order</span>
+  </div>
+  <div class="table-row orders" style="background:#0a1a0a;color:#666;font-size:10px;font-weight:500;text-transform:uppercase">
+    <span>column</span><span>type</span><span>notes</span>
+  </div>
+  <div class="table-row orders"><span class="col-name">id<span class="pk">PK</span></span><span class="col-type">SERIAL</span><span class="col-note">auto-increment, becomes order number</span></div>
+  <div class="table-row orders"><span class="col-name">sender_id</span><span class="col-type">TEXT</span><span class="col-note">Messenger user ID — identifies the person</span></div>
+  <div class="table-row orders"><span class="col-name">name</span><span class="col-type">TEXT</span><span class="col-note">what they typed as their name</span></div>
+  <div class="table-row orders"><span class="col-name">drink</span><span class="col-type">TEXT</span><span class="col-note">'matcha_latte' | 'iced_latte' | 'dirty_matcha'</span></div>
+  <div class="table-row orders"><span class="col-name">milk</span><span class="col-type">TEXT</span><span class="col-note">'oat' | 'cow'</span></div>
+  <div class="table-row orders"><span class="col-name">sweetness</span><span class="col-type">TEXT</span><span class="col-note">'less' | 'regular' | 'extra'</span></div>
+  <div class="table-row orders"><span class="col-name">building</span><span class="col-type">TEXT</span><span class="col-note">free text — wherever they said</span></div>
+  <div class="table-row orders"><span class="col-name">status</span><span class="col-type">TEXT</span><span class="col-note">'pending' | 'ready' | 'done' | 'cancelled'</span></div>
+  <div class="table-row orders"><span class="col-name">price</span><span class="col-type">INTEGER</span><span class="col-note">in pesos — computed when order is placed</span></div>
+  <div class="table-row orders"><span class="col-name">created_at</span><span class="col-type">TIMESTAMPTZ</span><span class="col-note">DEFAULT NOW() — used to filter by day</span></div>
+</div>
+
+<div class="table">
+  <div class="table-header">
+    <span>config</span>
+    <span style="color:#666;font-weight:400">one row only — your settings</span>
+  </div>
+  <div class="table-row config" style="background:#0a1a0a;color:#666;font-size:10px;font-weight:500;text-transform:uppercase">
+    <span>column</span><span>type</span><span>notes</span>
+  </div>
+  <div class="table-row config"><span class="col-name">id</span><span class="col-type">INTEGER</span><span class="col-note">always 1 — single row, always update don't insert</span></div>
+  <div class="table-row config"><span class="col-name">daily_limit</span><span class="col-type">INTEGER</span><span class="col-note">max orders per day — you set this from dashboard</span></div>
+  <div class="table-row config"><span class="col-name">accepting_orders</span><span class="col-type">BOOLEAN</span><span class="col-note">master on/off switch — toggle from dashboard</span></div>
+  <div class="table-row config"><span class="col-name">cutoff_message</span><span class="col-type">TEXT</span><span class="col-note">what the bot says when full/closed</span></div>
+  <div class="table-row config"><span class="col-name">pickup_time</span><span class="col-type">TEXT</span><span class="col-note">"8:00–8:15am SJH corridor" — shown in confirmation</span></div>
+</div>
+
+<pre>-- Run in Supabase SQL editor
+
+CREATE TABLE orders (
+  id             SERIAL PRIMARY KEY,
+  sender_id      TEXT NOT NULL,
+  name           TEXT NOT NULL,
+  drink          TEXT NOT NULL,
+  milk           TEXT NOT NULL,
+  sweetness      TEXT NOT NULL,
+  building       TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'pending',
+  price          INTEGER NOT NULL,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE config (
+  id               INTEGER PRIMARY KEY DEFAULT 1,
+  daily_limit      INTEGER NOT NULL DEFAULT 15,
+  accepting_orders BOOLEAN NOT NULL DEFAULT true,
+  cutoff_message   TEXT NOT NULL DEFAULT 'Sorry, orders are full for today! Try again tomorrow.',
+  pickup_time      TEXT NOT NULL DEFAULT '8:00–8:15am, SJH corridor'
+);
+
+-- Insert the one config row
+INSERT INTO config (id) VALUES (1);
+
+-- Useful index: fast query for today's orders
+CREATE INDEX idx_orders_date ON orders (DATE(created_at));</pre>
+
+<!-- API ROUTES -->
+<h2>API routes — what your server exposes</h2>
+
+<table class="route-table">
+  <tr>
+    <th>Method</th>
+    <th>Path</th>
+    <th>Description</th>
+    <th>Who calls it</th>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td class="route-path">/webhook</td>
+    <td class="route-desc">Meta verification challenge</td>
+    <td><span class="route-who who-bot">Messenger</span></td>
+  </tr>
+  <tr>
+    <td><span class="method post">POST</span></td>
+    <td class="route-path">/webhook</td>
+    <td class="route-desc">Incoming messages from users</td>
+    <td><span class="route-who who-bot">Messenger</span></td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td class="route-path">/health</td>
+    <td class="route-desc">UptimeRobot ping — returns 200</td>
+    <td><span class="route-who who-pub">UptimeRobot</span></td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td class="route-path">/api/orders/today</td>
+    <td class="route-desc">All orders placed today, sorted by id</td>
+    <td><span class="route-who who-admin">Dashboard</span></td>
+  </tr>
+  <tr>
+    <td><span class="method patch">PATCH</span></td>
+    <td class="route-path">/api/orders/:id/status</td>
+    <td class="route-desc">Update one order's status</td>
+    <td><span class="route-who who-admin">Dashboard</span></td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td class="route-path">/api/config</td>
+    <td class="route-desc">Get current settings (limit, on/off)</td>
+    <td><span class="route-who who-admin">Dashboard</span></td>
+  </tr>
+  <tr>
+    <td><span class="method patch">PATCH</span></td>
+    <td class="route-path">/api/config</td>
+    <td class="route-desc">Update settings from dashboard</td>
+    <td><span class="route-who who-admin">Dashboard</span></td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td class="route-path">/api/orders/count/today</td>
+    <td class="route-desc">How many orders today — bot checks this</td>
+    <td><span class="route-who who-bot">Bot logic</span></td>
+  </tr>
+</table>
+
+<div class="warn">The dashboard API routes need protection — add a simple secret header check so only you can call them. Not OAuth, not JWT — just an <code>ADMIN_SECRET</code> env variable checked on every /api/* route. Good enough for this scale.</div>
+
+<pre>// Simple admin middleware — add this to all /api routes
+const adminAuth = (req, res, next) => {
+  const secret = req.headers['x-admin-secret']
+  if (secret !== process.env.ADMIN_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+  next()
+}
+
+// Usage:
+app.get('/api/orders/today', adminAuth, async (req, res) => {
+  // only you get here
+})</pre>
+
+<!-- ORDER LIMIT LOGIC -->
+<h2>How order limits work in the bot</h2>
+
+<pre>// Every time someone tries to place an order,
+// check BEFORE starting the conversation:
+
+async function isAcceptingOrders() {
+  // Get config row
+  const { data: config } = await supabase
+    .from('config')
+    .select('accepting_orders, daily_limit')
+    .eq('id', 1)
+    .single()
+
+  if (!config.accepting_orders) return false
+
+  // Count today's non-cancelled orders
+  const today = new Date().toISOString().split('T')[0] // "2025-06-15"
+
+  const { count } = await supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', `${today}T00:00:00`)
+    .neq('status', 'cancelled')
+
+  return count < config.daily_limit
+}
+
+// In your handleMessage, IDLE state:
+case STATES.IDLE:
+  const open = await isAcceptingOrders()
+  if (!open) {
+    const { data: config } = await supabase
+      .from('config').select('cutoff_message').eq('id',1).single()
+    await send(senderId, config.cutoff_message)
+    break
+  }
+  sessions[senderId] = { state: STATES.ASK_NAME, data: {} }
+  await send(senderId, "Hi! What's your name?")
+  break</pre>
+
+<!-- PROJECT STRUCTURE -->
+<h2>Folder structure — before you create any files</h2>
+
+<pre>coffee-bot/
+├── index.js              ← entry point, Express setup
+├── .env                  ← secrets (never commit this)
+├── .gitignore            ← node_modules, .env
+├── package.json
+│
+├── routes/
+│   ├── webhook.js        ← GET + POST /webhook
+│   └── api.js            ← all /api/* routes
+│
+├── bot/
+│   ├── handleMessage.js  ← state machine logic
+│   ├── send.js           ← sendMessage() helper
+│   └── states.js         ← STATES constants
+│
+├── db/
+│   ├── supabase.js       ← supabase client init
+│   ├── orders.js         ← order DB functions
+│   └── config.js         ← config DB functions
+│
+└── dashboard/            ← your admin UI (plain HTML/CSS/JS)
+    ├── index.html
+    ├── style.css
+    └── app.js            ← fetch() calls to your /api routes</pre>
+
+<div class="ok">The dashboard folder is served as static files from Express. No React, no Vite, no build step — just the HTML/CSS/JS you already know. Express serves it at <code>/dashboard</code>. You protect it with a password prompt in the JS that sends the admin secret header.</div>
+
+<!-- REVISED TIMELINE -->
+<h2>Revised build timeline — still June 29</h2>
+<p>More features but same deadline. You need sharper daily focus. 2–3 hrs/day minimum.</p>
+
+<div class="phase p1">
+  <div class="phase-label">Days 1–2 · Jun 6–7 · Foundation</div>
+  <div class="phase-title">Async primer + environment</div>
+  <ul>
+    <li>Do the 3 async exercises from the primer</li>
+    <li>Confirm Node v20+, install VS Code extensions (ESLint, Thunder Client)</li>
+    <li>Create Supabase project, run both CREATE TABLE statements</li>
+    <li>Create Facebook Page + Meta Developer app</li>
+    <li>Init Node project, install: express dotenv axios @supabase/supabase-js</li>
+    <li>Write .env with placeholder values, write .gitignore</li>
+  </ul>
+</div>
+
+<div class="phase p1">
+  <div class="phase-label">Days 3–5 · Jun 8–10 · Server + webhook</div>
+  <div class="phase-title">Express running + Meta verified</div>
+  <ul>
+    <li>Build index.js: Express setup, GET /health, serve /dashboard static</li>
+    <li>Build routes/webhook.js: GET /webhook verification</li>
+    <li>Use ngrok, verify webhook on Meta dashboard</li>
+    <li>Add POST /webhook: log raw body, return 200</li>
+    <li>Send yourself a test message — see it appear in your console</li>
+    <li>Goal: you can see incoming Messenger events in your terminal ✓</li>
+  </ul>
+</div>
+
+<div class="phase p2">
+  <div class="phase-label">Days 6–10 · Jun 11–15 · Bot brain</div>
+  <div class="phase-title">State machine + Supabase</div>
+  <ul>
+    <li>Build bot/states.js, bot/send.js</li>
+    <li>Build bot/handleMessage.js — one state per session, test each</li>
+    <li>Build db/supabase.js client, db/orders.js (saveOrder, getTodayCount)</li>
+    <li>Build db/config.js (getConfig)</li>
+    <li>Wire limit check into IDLE state</li>
+    <li>Full order flow test — place a real order, check Supabase dashboard</li>
+  </ul>
+</div>
+
+<div class="phase p2">
+  <div class="phase-label">Days 11–14 · Jun 16–19 · Admin API</div>
+  <div class="phase-title">All /api routes working</div>
+  <ul>
+    <li>Build routes/api.js with adminAuth middleware</li>
+    <li>GET /api/orders/today — returns array of today's orders</li>
+    <li>PATCH /api/orders/:id/status — updates status</li>
+    <li>GET /api/config + PATCH /api/config</li>
+    <li>Test every route with Thunder Client (VS Code) or Postman</li>
+    <li>Goal: you can read + update orders via API without any UI ✓</li>
+  </ul>
+</div>
+
+<div class="phase p3">
+  <div class="phase-label">Days 15–19 · Jun 20–24 · Dashboard UI</div>
+  <div class="phase-title">Admin web interface</div>
+  <ul>
+    <li>dashboard/index.html: order list table, settings panel</li>
+    <li>dashboard/app.js: fetch today's orders on load, render to table</li>
+    <li>Status buttons: click pending → ready → done per row</li>
+    <li>Settings panel: daily limit input, accepting orders toggle</li>
+    <li>Simple password prompt that stores admin secret in sessionStorage</li>
+    <li>Auto-refresh orders every 30 seconds (setInterval + fetch)</li>
+  </ul>
+</div>
+
+<div class="phase p4">
+  <div class="phase-label">Days 20–22 · Jun 25–27 · Deploy</div>
+  <div class="phase-title">Live on Render</div>
+  <ul>
+    <li>Push to GitHub (confirm .env not included)</li>
+    <li>Deploy to Render, set all env vars in dashboard</li>
+    <li>Update Meta webhook URL to Render URL</li>
+    <li>UptimeRobot ping setup</li>
+    <li>Full end-to-end test on live URL</li>
+  </ul>
+</div>
+
+<div class="phase p5">
+  <div class="phase-label">Days 23 · Jun 28–29 · Launch</div>
+  <div class="phase-title">Messenger Community + README</div>
+  <ul>
+    <li>Create Messenger Community manually</li>
+    <li>Invite test users, run full flow</li>
+    <li>Write GitHub README with screenshots</li>
+    <li>Shipped. ✓</li>
+  </ul>
+</div>
+
+<!-- SCOPE -->
+<h2>Scope boundary — stay inside this</h2>
+<div class="scope-grid">
+  <div class="scope-box scope-in">
+    <h4>✓ Shipping June 29</h4>
+    <ul>
+      <li>Messenger bot — full order flow</li>
+      <li>Daily order limit (from config)</li>
+      <li>Master on/off switch</li>
+      <li>Admin dashboard — order list</li>
+      <li>Status updates (pending/ready/done)</li>
+      <li>Settings panel (limit, toggle)</li>
+      <li>Messenger Community setup</li>
+      <li>Deployed on Render</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-out">
+    <h4>✗ After launch — v2</h4>
+    <ul>
+      <li>GCash payment integration</li>
+      <li>Order history / past days</li>
+      <li>Revenue analytics charts</li>
+      <li>Customer order editing</li>
+      <li>Automated daily announcements</li>
+      <li>Multiple admins / roles</li>
+      <li>Push notifications</li>
+      <li>Mobile-optimized dashboard</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ok">This is a complete full-stack app: real API, real database, real third-party integration, real users. At 2nd year CS level this is a strong portfolio piece. Ship the MVP first — every feature in v2 is something you add after it's live and working.</div>
+
+</body>
+</html>
