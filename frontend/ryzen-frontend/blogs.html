@@ -31,6 +31,9 @@
 
     <link rel="stylesheet" href="./src/style.scss" />
 
+
+    <!-- for three.js initialization-->
+
     <script type="importmap">
       {
         "imports": {
@@ -44,70 +47,6 @@
   </head>
 
   <body>
-    <div
-      id="brutal-loader"
-      style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #fff8a4;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        border: 8px solid black;
-        transition: opacity 0.6s ease-out;
-      "
-    >
-      <h1
-        style="
-          font-family: &quot;Inconsolata&quot;, sans-serif;
-          font-size: 3rem;
-          color: black;
-          margin-bottom: 10px;
-          margin-top: 0;
-        "
-      >
-        system booting...
-      </h1>
-      <div
-        style="
-          width: 250px;
-          height: 30px;
-          border: 4px solid black;
-          background: transparent;
-          position: relative;
-        "
-      >
-        <div
-          id="loader-bar"
-          style="
-            width: 0%;
-            height: 100%;
-            background: black;
-            transition: width 0.2s ease;
-          "
-        ></div>
-      </div>
-      <p
-        id="loader-percent"
-        style="
-          font-family: &quot;Inconsolata&quot;, monospace;
-          font-weight: bold;
-          font-size: 1.5rem;
-          color: black;
-          margin-top: 15px;
-          margin-bottom: 0;
-        "
-      >
-        [ 0% ]
-      </p>
-    </div>
-
-    <div class="overlayEffect"></div>
 
     <div class="layout-grid">
       <div class="leftside">

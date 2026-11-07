@@ -754,12 +754,14 @@ article.inside {
 @mixin articleImg($height) {
   object-fit: cover;
   padding-top: 1rem;
+  margin-top: 3rem;
   width: 97%;
   height: $height;
 }
 
 .articleImg {
-  @include articleImg(15rem);
+  margin-top: 2rem;
+  @include articleImg(43%);
 }
 
 .articleImgInner {
@@ -1208,16 +1210,16 @@ button.buttonDimension10 {
   /* Force the image to span perfectly inside the card */
   .articleImg {
     width: 100% !important; /* No more 97% weirdness */
-    height: 220px !important; /* Perfect cinematic landscape crop */
+    height: 190px !important; /* Perfect cinematic landscape crop */
     object-fit: cover;
-    margin: 1rem 0 0.5rem 0 !important; /* Breathing room top and bottom */
+    margin: 2rem 0 1rem 0 !important; /* Breathing room top and bottom */
     padding: 0 !important; /* Kills the weird desktop padding */
   }
 
   /* Let the preview text breathe */
   .enclosure {
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
     margin-bottom: 0.5rem;
     line-height: 1.4;
   }
