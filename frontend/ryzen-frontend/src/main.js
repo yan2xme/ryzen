@@ -148,6 +148,48 @@ function timeAgo(dateString) {
 // ─────────────────────────────────────────
 // HOMEPAGE (Feed + Stories)
 // ─────────────────────────────────────────
+
+
+function openStoryOverlay(story, imageUrl) {
+  const overlay = document.querySelector(".overlayEffect");
+  if (!overlay) return;
+
+  const newUrl = new URL(window.location.href);
+  newUrl.searchParams.set('story', story.slug.current);
+  window.history.pushState({ path: newUrl.href }, '', newUrl.href);
+
+  const rawDate = new Date(story.datePosted);
+  const formattedDate = isNaN(rawDate)
+    ? story.datePosted
+    : rawDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+
+  overlay.innerHTML = `
+    <div class="storyContentOverlay neoBrutal">
+      <div class="storyHeader">
+        <div class="storyProfile"><img src="/image.png" alt="Profile" /></div>
+        <button class="closeStory" aria-label="Close story"></button>
+        <div class="storyFont">Klent Tangaro</div>
+        <div class="storyFont2">${timeAgo(story.datePosted)} • ${formattedDate}</div>
+        <img src="${gradient}" alt="" />
+      </div>
+      <img src="${imageUrl}" alt="story" />
+    </div>`;
+
+  overlay.classList.add("active");
+  overlay.querySelector(".closeStory").onclick = () => {
+    overlay.classList.remove("active");
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('story');
+    window.history.replaceState({}, '', cleanUrl.href);
+  };
+}
+
 function initHomepage() {
   const feedContainer = document.getElementById("post-feed");
   const storyContainer = document.getElementById("storyContainer");
@@ -249,6 +291,7 @@ function initHomepage() {
         trigger.addEventListener('click', (e) => {
           e.preventDefault();
           openStoryOverlay(story, imageUrl);
+          console.log("bayot");
         });
 
         storyContainer.appendChild(div);
@@ -258,45 +301,7 @@ function initHomepage() {
 }
 
 
-function openStoryOverlay(story, imageUrl) {
-  const overlay = document.querySelector(".overlayEffect");
-  if (!overlay) return;
 
-  const newUrl = new URL(window.location.href);
-  newUrl.searchParams.set('story', story.slug.current);
-  window.history.pushState({ path: newUrl.href }, '', newUrl.href);
-
-  const rawDate = new Date(story.datePosted);
-  const formattedDate = isNaN(rawDate)
-    ? story.datePosted
-    : rawDate.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-
-  overlay.innerHTML = `
-    <div class="storyContentOverlay neoBrutal">
-      <div class="storyHeader">
-        <div class="storyProfile"><img src="/image.png" alt="Profile" /></div>
-        <button class="closeStory" aria-label="Close story"></button>
-        <div class="storyFont">Klent Tangaro</div>
-        <div class="storyFont2">${timeAgo(story.datePosted)} • ${formattedDate}</div>
-        <img src="${gradient}" alt="" />
-      </div>
-      <img src="${imageUrl}" alt="story" />
-    </div>`;
-
-  overlay.classList.add("active");
-  overlay.querySelector(".closeStory").onclick = () => {
-    overlay.classList.remove("active");
-    const cleanUrl = new URL(window.location.href);
-    cleanUrl.searchParams.delete('story');
-    window.history.replaceState({}, '', cleanUrl.href);
-  };
-}
 
 // ─────────────────────────────────────────
 // ARTICLE / BLOG PAGE
@@ -318,10 +323,6 @@ function initArticlePage() {
       document.title = `${result.title} | Ryzen`;
 
       const imageUrl = sanityImageUrl(result.blogPosterImage.asset._ref);
-      const [globalLikes, commentCount] = await Promise.all([
-        getPostStats([currentSlug]).then(m => m[currentSlug] || 0),
-        getSingleCommentCount(currentSlug)
-      ]);
 
       const div = document.createElement('div');
       div.className = 'post';
@@ -336,8 +337,6 @@ function initArticlePage() {
             <img src="/image.png" alt="Profile Picture" class="pfp" />
             <p class="footerText">Klent Tangaro</p>
             <div class="butts2">
-              <button class="buttonDimension2 likeBtn" type="button">${formatNumber(globalLikes)}</button>
-              <button class="buttonDimension3 commentCountBtn" type="button">${commentCount}</button>
               <button class="buttonDimension5 neoBrutal2 shareBtn" type="button">Share</button>
             </div>
           </footer>
@@ -365,269 +364,11 @@ function initArticlePage() {
           if (err.name !== 'AbortError') console.error('Share error:', err);
         }
       });
-
-      const likeBtn = div.querySelector('.likeBtn');
-      likeBtn.addEventListener('click', async () => {
-        const newCount = await incrementGlobalLikes(currentSlug);
-        likeBtn.innerText = formatNumber(newCount);
-        likeBtn.classList.add('is-liked');
-      });
     })
     .catch(error => console.error("[Ryzen] Inner fetch failed:", error));
 }
 
-// ─────────────────────────────────────────
-// HELPER: bump the article-page comment count button
-// ─────────────────────────────────────────
-function bumpArticleCommentCount(delta = 1) {
-  const btn = document.querySelector('.commentCountBtn');
-  if (!btn) return;
-  const current = parseInt(btn.innerText, 10) || 0;
-  btn.innerText = current + delta;
-}
 
-// ─────────────────────────────────────────
-// THREADED COMMENTS
-// ─────────────────────────────────────────
-function initComments() {
-  const postBtn = document.getElementById('postCommentBtn');
-  const commentSection = document.querySelector('.commentSection');
-  const hrLine = commentSection?.querySelector('.commentLine');
-  const nameInput = document.getElementById('commenterName');
-  const mainTextarea = document.querySelector('.commentFieldInner');
-
-  if (!postBtn || !hrLine || !currentSlug) return;
-  if (!supabase) {
-    console.warn('[Ryzen] Supabase unavailable. Comment system disabled.');
-    return;
-  }
-
-  // ─── DYNAMIC COMMENTS COUNT HEADER ───
-  const commentsCountHeader = document.createElement('div');
-  commentsCountHeader.className = 'comments-count-header';
-  commentsCountHeader.style.cssText = 'font-family:Inconsolata,monospace; font-size:1.5rem; font-weight:700; margin:1rem 0 0.5rem;';
-  commentsCountHeader.innerText = '0 Comments';
-  hrLine.insertAdjacentElement('afterend', commentsCountHeader);
-
-  // ─── MAIN AVATAR SELECTOR INJECTION ───
-  const commentFieldOuter = commentSection.querySelector('.commentFieldOuter');
-  const mainPfp = commentSection.querySelector('.userPfp .pfp') || commentSection.querySelector('.pfp');
-
-  const mainAvatarSelector = createAvatarSelector(avatarOptions[0], (selectedUrl) => {
-    if (mainPfp) mainPfp.src = selectedUrl;
-  });
-
-  if (commentFieldOuter) {
-    const mainAvatarPicker = document.createElement('div');
-    mainAvatarPicker.className = 'main-avatar-picker';
-    mainAvatarPicker.style.cssText = 'padding-bottom:0.5rem; padding-left:0.5rem;';
-    mainAvatarPicker.appendChild(mainAvatarSelector);
-    commentFieldOuter.insertBefore(mainAvatarPicker, mainTextarea);
-  }
-
-  function updateCommentsCountDisplay(count) {
-    commentsCountHeader.innerText = `${count} Comment${count !== 1 ? 's' : ''}`;
-  }
-
-  const boldBtn = document.getElementById('boldBtn');
-  const italicBtn = document.getElementById('italicBtn');
-  const cancelBtn = commentSection?.querySelector('.footerCommentField .buttonDimension8');
-
-  if (boldBtn && mainTextarea) boldBtn.addEventListener('click', () => wrapSelection(mainTextarea, '**', '**'));
-  if (italicBtn && mainTextarea) italicBtn.addEventListener('click', () => wrapSelection(mainTextarea, '*', '*'));
-  if (cancelBtn && mainTextarea) cancelBtn.addEventListener('click', () => { mainTextarea.value = ''; });
-
-  // ─── LOAD & RENDER COMMENTS ───
-  async function loadComments() {
-    const existingRoot = commentSection.querySelector('.comments-root');
-    if (existingRoot) existingRoot.remove();
-
-    const { data, error } = await supabase
-      .from('comments')
-      .select('*')
-      .eq('slug', currentSlug)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('[Ryzen] Comments fetch error:', error.message, '| code:', error.code);
-      updateCommentsCountDisplay(0);
-      return;
-    }
-    if (!data || !data.length) {
-      updateCommentsCountDisplay(0);
-      return;
-    }
-
-    updateCommentsCountDisplay(data.length);
-
-    const rootContainer = document.createElement('div');
-    rootContainer.className = 'comments-root';
-    commentsCountHeader.insertAdjacentElement('afterend', rootContainer);
-
-    const rootComments = data.filter(c => !c.parent_id);
-    rootComments.forEach(comment => {
-      rootContainer.appendChild(createCommentNode(comment, data));
-    });
-  }
-
-  function createCommentNode(comment, allComments) {
-    const date = timeAgo(comment.created_at);
-    const childCount = allComments.filter(c => c.parent_id === comment.id).length;
-    const avatarSrc = comment.avatar_url || myEllipse;
-
-    const div = document.createElement('div');
-    div.className = 'comment1';
-
-    div.innerHTML = `
-      <div class="userCommentHeader">
-        <div class="userPfp">
-          <img src="${avatarSrc}" alt="PFP" class="pfp" style="cursor:pointer; object-fit:cover;" title="Use this avatar">
-          <div>
-            <p class="userName">${escapeHtml(comment.name)}</p>
-            <p class="date">${date}</p>
-          </div>
-        </div>
-      </div>
-      <p class="comment-body">${parseRichText(comment.content)}</p>
-      <div class="commentFooter" style="display:flex; gap:2rem; align-items:center; margin-bottom:0.75rem; font-family:Inconsolata;">
-        <button class="buttonDimension2 commentStarBtn" type="button" style="margin:0;">${comment.likes_count || 0}</button>
-        <button class="buttonDimension3" type="button" style="margin:0;">${childCount}</button>
-        <button class="buttonDimension12 replyBtn" type="button" style="margin:0;">Reply</button>
-      </div>
-      <div class="replies-section" style="display:none; margin-left:2rem; border-left:2px solid black; padding-left:1rem;"></div>
-    `;
-
-    const repliesSection = div.querySelector('.replies-section');
-    const replyBtn = div.querySelector('.replyBtn');
-    const starBtn = div.querySelector('.commentStarBtn');
-    const pfpImg = div.querySelector('.userPfp .pfp');
-
-    if (pfpImg) {
-      pfpImg.addEventListener('click', () => {
-        mainAvatarSelector.setSelectedAvatar(avatarSrc);
-      });
-    }
-
-    starBtn.addEventListener('click', async () => {
-      starBtn.innerText = '...';
-      const newCount = await incrementCommentLikes(comment.id);
-      starBtn.innerText = formatNumber(newCount);
-      starBtn.classList.add('is-liked');
-    });
-
-    const children = allComments.filter(c => c.parent_id === comment.id);
-    if (children.length > 0) {
-      repliesSection.style.display = 'block';
-      children.forEach(child => {
-        repliesSection.appendChild(createCommentNode(child, allComments));
-      });
-    }
-
-    replyBtn.addEventListener('click', () => {
-      const existing = repliesSection.querySelector('.reply-input-wrapper');
-      if (existing) existing.remove();
-
-      repliesSection.style.display = 'block';
-
-      const inputWrapper = document.createElement('div');
-      inputWrapper.className = 'reply-input-wrapper';
-      inputWrapper.style.marginTop = '1rem';
-      inputWrapper.style.marginBottom = '1.5rem';
-      inputWrapper.innerHTML = `
-        <div class="commentFieldOuter">
-          <div class="reply-avatar-picker" style="padding-top:0.5rem; padding-left:0.5rem;"></div>
-          <input type="text" class="reply-name" placeholder="Your name" style="width:90%; padding:0.5rem; margin:0.5rem 0; font-family:Inconsolata; border:2px solid black; outline:none;">
-          <textarea class="commentFieldInner" placeholder="////Type your comment here////" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" style="width:90%;"></textarea>
-          <div class="footerCommentField">
-            <div class="left">
-              <button class="buttonDimension6 reply-bold" type="button"></button>
-              <button class="buttonDimension7 reply-italic" type="button"></button>
-            </div>
-            <div class="right">
-              <button class="buttonDimension8 reply-cancel" type="button">Cancel</button>
-              <button class="buttonDimension9 reply-post" type="button">Post</button>
-            </div>
-          </div>
-        </div>
-      `;
-
-      repliesSection.insertBefore(inputWrapper, repliesSection.firstChild);
-
-      const replyAvatarSelector = createAvatarSelector(avatarSrc);
-      const replyAvatarPicker = inputWrapper.querySelector('.reply-avatar-picker');
-      replyAvatarPicker.appendChild(replyAvatarSelector);
-
-      const replyNameInput = inputWrapper.querySelector('.reply-name');
-      if (nameInput?.value) replyNameInput.value = nameInput.value;
-
-      const ta = inputWrapper.querySelector('textarea');
-      ta.focus();
-
-      inputWrapper.querySelector('.reply-bold').addEventListener('click', () => wrapSelection(ta, '**', '**'));
-      inputWrapper.querySelector('.reply-italic').addEventListener('click', () => wrapSelection(ta, '*', '*'));
-
-      inputWrapper.querySelector('.reply-cancel').addEventListener('click', () => {
-        inputWrapper.remove();
-        if (repliesSection.querySelectorAll('.comment1').length === 0 && !repliesSection.querySelector('.reply-input-wrapper')) {
-          repliesSection.style.display = 'none';
-        }
-      });
-
-      inputWrapper.querySelector('.reply-post').addEventListener('click', async () => {
-        const text = ta.value.trim();
-        if (!text) return;
-
-        const name = replyNameInput.value.trim() || nameInput?.value || 'Guest';
-        const avatarUrl = replyAvatarSelector.getSelectedAvatar();
-
-        const { error } = await supabase.from('comments').insert([{
-          name,
-          content: text,
-          slug: currentSlug,
-          parent_id: comment.id,
-          avatar_url: avatarUrl
-        }]);
-
-        if (error) {
-          console.error('[Ryzen] Reply post error:', error.message, '| code:', error.code);
-          alert('Failed to post reply. See console for details.');
-        } else {
-          bumpArticleCommentCount(1);
-          await loadComments();
-        }
-      });
-    });
-
-    return div;
-  }
-
-  // ─── POST TOP-LEVEL COMMENT ───
-  postBtn.addEventListener('click', async () => {
-    const text = mainTextarea?.value.trim();
-    if (!text) return;
-
-    const name = nameInput?.value || 'Guest';
-    const avatarUrl = mainAvatarSelector.getSelectedAvatar();
-
-    const { error } = await supabase.from('comments').insert([{
-      name,
-      content: text,
-      slug: currentSlug,
-      avatar_url: avatarUrl
-    }]);
-
-    if (error) {
-      console.error('[Ryzen] Post comment error:', error.message, '| code:', error.code);
-      alert('Failed to post comment. See console for details.');
-    } else {
-      mainTextarea.value = '';
-      bumpArticleCommentCount(1);
-      await loadComments();
-    }
-  });
-
-  loadComments();
-}
 
 // ─────────────────────────────────────────
 // TURNTABLE
@@ -666,7 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initTyped();
   initHomepage();
   initArticlePage();
-  initComments();
 
   // ─── BROWSER HISTORY ROUTING FOR STORIES ───
   // This ensures the browser "Back" button closes the story overlay instead of breaking
