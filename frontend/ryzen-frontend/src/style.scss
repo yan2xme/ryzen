@@ -751,21 +751,20 @@ article.inside {
   @include commentStyle(-2rem, -2rem, 0, 0, 2%, 1rem);
 }
 
-@mixin articleImg($height) {
+@mixin articleImg($height,$mT) {
   object-fit: cover;
   padding-top: 1rem;
-  margin-top: 3rem;
+  margin-top: $mT;
   width: 97%;
   height: $height;
 }
 
 .articleImg {
-  margin-top: 2rem;
-  @include articleImg(43%);
+  @include articleImg(43%,2rem);
 }
 
 .articleImgInner {
-  @include articleImg(23rem);
+  @include articleImg(23rem,-1rem);
 }
 
 @mixin footer($pT, $pL, $width) {
@@ -797,7 +796,7 @@ footer.articleInside2 {
   margin-left: auto;
 }
 .butts2 {
-  margin-left: 70%;
+  margin-left: 68%;
   display: flex;
   gap: 0.5rem;
   align-items: center;
