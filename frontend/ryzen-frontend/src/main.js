@@ -151,6 +151,7 @@ function timeAgo(dateString) {
 
 
 function openStoryOverlay(story, imageUrl) {
+
   const overlay = document.querySelector(".overlayEffect");
   if (!overlay) return;
 
