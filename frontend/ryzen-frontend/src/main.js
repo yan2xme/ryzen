@@ -189,6 +189,8 @@ function openStoryOverlay(story, imageUrl) {
     cleanUrl.searchParams.delete('story');
     window.history.replaceState({}, '', cleanUrl.href);
   };
+
+  
 }
 
 function initHomepage() {
@@ -343,7 +345,7 @@ function initArticlePage() {
           </footer>
           <br /><hr class="articleLine" /><br />
           <div class="content">
-            <p class="body">${result.content.map(c => parseRichText(c)).join("<br><br>")}</p>
+            <p class="body">${result.content.map(c => parseRichText(c)).join("<br>")}</p>
             <br />
           </div>
           <br /><br />
