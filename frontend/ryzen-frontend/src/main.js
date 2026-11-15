@@ -89,13 +89,6 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function parseRichText(text) {
-  if (!text) return '';
-  let safe = escapeHtml(text);
-  safe = safe.replace(/\n/g, '<br>');
-  return safe;
-}
-
 function buildSanityUrl(query) {
   return `https://${projectID}.api.sanity.io/${sanityApiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`;
 }
