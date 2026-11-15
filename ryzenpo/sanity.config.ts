@@ -13,6 +13,23 @@ export default defineConfig({
   plugins: [structureTool(), visionTool()],
 
   schema: {
-    types: schemaTypes,
+    types: schemaTypes,  
   },
+    form: {
+    components: {
+      portableText: {
+        plugins: (props) => {
+          return props.renderDefault({
+            ...props,
+            plugins: {
+              ...props.plugins,
+              typography: {
+                enabled: false
+              }
+            }
+          })
+        }
+      },
+    },
+  }
 })

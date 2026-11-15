@@ -5,6 +5,8 @@
   src: url(./assets/Inconsolata.ttf);
 }
 
+@plugin "@tailwindcss/typography";
+
 @font-face {
   font-family: Jaini;
   src: url(./assets/JainiPurva-Regular.ttf);

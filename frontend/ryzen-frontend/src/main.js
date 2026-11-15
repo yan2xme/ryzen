@@ -5,6 +5,8 @@ import gradient from './assets/linearGradient.svg';
 import { initThreeTurntable, updatePlayback } from './three-turntable.js';
 import { createClient } from '@supabase/supabase-js'
 import { inject } from '@vercel/analytics'
+import {toHTML} from '@portabletext/to-html'
+
 
 // Initialize Vercel Web Analytics
 inject();
@@ -90,8 +92,6 @@ function escapeHtml(text) {
 function parseRichText(text) {
   if (!text) return '';
   let safe = escapeHtml(text);
-  safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  safe = safe.replace(/\*(.+?)\*/g, '<em>$1</em>');
   safe = safe.replace(/\n/g, '<br>');
   return safe;
 }
@@ -313,7 +313,11 @@ function initArticlePage() {
   const postInnerContainer = document.getElementById("postInnerFeed");
   if (!postInnerContainer || !currentSlug) return;
 
-  const query = `*[_type == "post" && slug.current == "${currentSlug}"] { title, datePosted, blogPosterImage{asset}, "content": content[].children[].text, slug{current} } [0]`;
+  const query = `
+  
+  *[_type == "post" && slug.current == "${currentSlug}"] { title, datePosted, blogPosterImage{asset}, content, slug{current} } [0]
+  
+  `;
 
   fetch(buildSanityUrl(query))
     .then(res => res.json())
@@ -345,7 +349,9 @@ function initArticlePage() {
           </footer>
           <br /><hr class="articleLine" /><br />
           <div class="content">
-            <p class="body">${result.content.map(c => parseRichText(c)).join("<br>")}</p>
+            <div class="body">${
+              toHTML(result.content,{})
+            }</div>
             <br />
           </div>
           <br /><br />
