@@ -1,6 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+// ─────────────────────────────────────────
+// TURNTABLE
+// ─────────────────────────────────────────
+// TODO: add function for turntable
+
+
+
 let scene, camera, renderer;
 let tonearmPivot, tonearmOffsetGroup, tonearmGroup;
 let notes = [];
@@ -395,3 +402,50 @@ export function cleanup() {
     renderer.domElement.remove();
   }
 }
+
+
+
+
+// Text-two liner formatting
+
+function fitToTwoLines(el, minRem = 5, maxRem = 25) {
+  if (!el) return;
+
+  const step = 0.25;
+
+  // Temporarily set clean measurement styles
+  el.style.transition = 'none';
+  el.style.lineHeight = '1';
+  el.style.maxHeight = 'none';
+  el.style.overflow = 'visible';
+
+  // Binary search: find the BIGGEST font size that fits in exactly 2 lines
+  let lo = minRem, hi = maxRem, best = minRem;
+
+  while (hi - lo >= step) {
+    const mid = Math.round(((lo + hi) / 2) / step) * step;
+    el.style.fontSize = mid + 'rem';
+
+    const fs = parseFloat(getComputedStyle(el).fontSize);
+    const twoLineHeight = fs * 2;
+
+    if (el.scrollHeight <= twoLineHeight + 1) {
+      best = mid;
+      lo = mid + step;
+    } else {
+      hi = mid - step;
+    }
+  }
+
+  el.style.fontSize = best + 'rem';
+
+  // Restore original styles
+  el.style.lineHeight = '0.8';
+  el.style.maxHeight = '1.7em';
+  el.style.overflow = 'hidden';
+  el.style.transition = 'font-size 0.25s ease';
+}
+
+const songText = document.querySelector('.songText');
+document.fonts.ready.then(() => fitToTwoLines(songText));
+window.addEventListener('resize', () => fitToTwoLines(songText));
