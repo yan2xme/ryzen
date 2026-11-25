@@ -63,6 +63,34 @@ h1 {
   @include malaki(36pt);
 }
 
+h2 {
+  @include malaki(28pt);
+}
+
+h3 {
+  @include malaki(20pt);
+}
+
+blockquote {
+  @include p();
+  margin: 1.5rem;
+  border-left: 2mm groove rgba(229, 229, 229, 0.6);
+}
+
+code {
+    background-color: rgb(229, 229, 229);
+}
+
+ol{
+    @include p();
+    margin: 1rem;
+}
+
+ul{
+    @include p();
+    margin: 1rem;
+}
+
 h1.tt {
   @include malaki(48pt);
 }
