@@ -3,7 +3,6 @@ import Typed from 'typed.js';
 import myEllipse from '/image.png';
 import gradient from './assets/linearGradient.svg';
 import { initThreeTurntable, updatePlayback } from './three-turntable.js';
-import { createClient } from '@supabase/supabase-js'
 import { inject } from '@vercel/analytics'
 import {toHTML} from '@portabletext/to-html'
 
@@ -14,16 +13,6 @@ inject();
 // ─────────────────────────────────────────
 // CONFIGURATION
 // ─────────────────────────────────────────
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-const supabase = (supabaseUrl && supabaseAnonKey)
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
-
-if (!supabase) {
-  console.warn('[Ryzen] Supabase env vars missing. Comments & global stats are disabled.');
-}
 
 const projectID = "usuc0cod";
 const dataset = "production";
@@ -32,56 +21,8 @@ const sanityApiVersion = "v2026-05-10";
 const urlParams = new URLSearchParams(window.location.search);
 const currentSlug = urlParams.get('slug');
 
-// ─────────────────────────────────────────
-// UTILITIES
-// ─────────────────────────────────────────
-const avatarOptions = [
-  myEllipse,
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Buster',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Daisy',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Gizmo'
-];
 
-function createAvatarSelector(defaultSrc = avatarOptions[0], onChangeCallback = null) {
-  const container = document.createElement('div');
-  container.className = 'avatar-selector';
-  container.style.cssText = 'display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center;';
-
-  let currentSelectedSrc = defaultSrc;
-
-  avatarOptions.forEach(url => {
-    const img = document.createElement('img');
-    img.src = url;
-    img.dataset.avatarUrl = url;
-    img.style.cssText = `width:32px; height:32px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border 0.2s; object-fit:cover;`;
-
-    if (url === defaultSrc) img.style.borderColor = 'black';
-
-    img.addEventListener('click', () => {
-      currentSelectedSrc = url;
-      container.querySelectorAll('img').forEach(i => i.style.borderColor = 'transparent');
-      img.style.borderColor = 'black';
-      if (onChangeCallback) onChangeCallback(url);
-    });
-
-    container.appendChild(img);
-  });
-
-  container.getSelectedAvatar = () => currentSelectedSrc;
-
-  container.setSelectedAvatar = (url) => {
-    currentSelectedSrc = url;
-    container.querySelectorAll('img').forEach(img => {
-      img.style.borderColor = img.dataset.avatarUrl === url ? 'black' : 'transparent';
-    });
-    if (onChangeCallback) onChangeCallback(url);
-  };
-
-  return container;
-}
-
+// escape inner story content
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
@@ -98,25 +39,9 @@ function sanityImageUrl(assetRef) {
   return `https://cdn.sanity.io/images/${projectID}/${dataset}/${parts[1]}-${parts[2]}.${parts[3]}`;
 }
 
-function formatNumber(num) {
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-  return num.toString();
-}
 
-function wrapSelection(textarea, open, close) {
-  if (!textarea) return;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const text = textarea.value;
-  const before = text.substring(0, start);
-  const selected = text.substring(start, end);
-  const after = text.substring(end);
-  textarea.value = before + open + selected + close + after;
-  textarea.selectionStart = start + open.length;
-  textarea.selectionEnd = end + open.length;
-  textarea.focus();
-}
 
+// for time calculation
 function timeAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -141,6 +66,8 @@ function timeAgo(dateString) {
 // ─────────────────────────────────────────
 // HOMEPAGE (Feed + Stories)
 // ─────────────────────────────────────────
+
+
 
 
 function openStoryOverlay(story, imageUrl) {
@@ -182,9 +109,8 @@ function openStoryOverlay(story, imageUrl) {
     cleanUrl.searchParams.delete('story');
     window.history.replaceState({}, '', cleanUrl.href);
   };
-
-  
 }
+
 
 function initHomepage() {
   const feedContainer = document.getElementById("post-feed");
@@ -197,10 +123,10 @@ function initHomepage() {
   if (leftArrow && rightArrow && storyContainer) {
     const scrollAmount = 250;
     leftArrow.addEventListener('click', () => {
-      storyContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      storyContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); //left button toggle
     });
     rightArrow.addEventListener('click', () => {
-      storyContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      storyContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });  //right button toggle
     });
   }
 
@@ -296,9 +222,6 @@ function initHomepage() {
     .catch(error => console.error("[Ryzen] Story fetch failed:", error));
 }
 
-
-
-
 // ─────────────────────────────────────────
 // ARTICLE / BLOG PAGE
 // ─────────────────────────────────────────
@@ -376,6 +299,11 @@ function initArticlePage() {
 // TURNTABLE
 // ─────────────────────────────────────────
 
+// TODO: add function for turntable
+
+
+
+
 // ─────────────────────────────────────────
 // TYPED.JS
 // ─────────────────────────────────────────
@@ -402,6 +330,9 @@ function initTyped() {
   });
 }
 
+
+
+
 // ─────────────────────────────────────────
 // BOOTSTRAP & HISTORY ROUTING
 // ─────────────────────────────────────────
@@ -423,6 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
 // ─── MOBILE SIDEBAR TOGGLE ───
 document.addEventListener('DOMContentLoaded', () => {
   const menuBtn = document.getElementById('mobileMenuBtn');
@@ -441,6 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+
+
+
+// for turntable
 function fitToTwoLines(el, minRem = 5, maxRem = 25) {
   if (!el) return;
 
@@ -479,6 +416,7 @@ function fitToTwoLines(el, minRem = 5, maxRem = 25) {
   el.style.transition = 'font-size 0.25s ease';
 }
 
+//define song text
 const songText = document.querySelector('.songText');
 
 document.fonts.ready.then(() => fitToTwoLines(songText));
